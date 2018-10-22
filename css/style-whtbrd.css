@@ -14,9 +14,19 @@
     top: 0px;
     left: 0px;
     cursor: grab;
-    font-family: monospace;
-    font-size: 15px;
-    max-width: 300px;
+    font-family: 'Ubuntu Mono', monospace;
+    color: #121212;
+    font-size: 14px;
+    min-width: 150px;
+    max-width: 350px;
+}
+
+.item:hover {
+    z-index: 500;
+}
+
+.item:hover > .item-heading {
+    color: #0e92a2;
 }
 
 .ui-draggable-dragging {
@@ -29,12 +39,16 @@
 }
 
 .item-description {
-    font-size: 0.9em;
+    font-family: 'Average Sans', sans-serif;
+    line-height: 1.1;
+    margin-top: 10px;
 }
 
 .code {
-    padding: 20px;
+    margin: 15px 0;
+    padding-left: 15px;
     font-size: 0.9em;
+    border-left: 5px solid #0e92a2; /* #bcbcbc; */
 }
 
 .hidden {
@@ -42,7 +56,7 @@
 }
 
 .big-font {
-    font-size: 1.1rem;
+    font-size: 1.2em;
 }
 
 /*.add-new {

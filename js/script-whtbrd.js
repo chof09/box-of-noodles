@@ -1,77 +1,13 @@
 $(function() {
 
-    function Item (itemID, heading, description, codeEx, isOpened) {
-
-        this.itemID = itemID;
-        this.heading = heading;
-        this.description = description;
-        this.codeEx = codeEx;
-        this.isOpened = isOpened;
-
-        let posTop = 0;
-        let posLeft = 0;
-    }
-
-    // Set Noodles
-    function setNoodles() {
-        if(localStorage.length) {
-            for(let key in localStorage) {
-                // Check if key is a number (there is a 'counter' key also)
-                if(Number(key)) {
-
-                    let theItemObject = JSON.parse(localStorage.getItem(key));
-                    // Convert bool string to bool and set class
-                    let hidden = JSON.parse(theItemObject.isOpened) ? '' : 'hidden';
-                    let big = JSON.parse(theItemObject.isOpened) ? 'big-font' : '';
-
-                    $(`
-                    <div class="item ${ big }" data-opened=${ theItemObject.isOpened }>
-                        <span class="item-heading">${ theItemObject.heading }</span>
-                        <p class="item-description ` + hidden + `">${ theItemObject.description }</p>
-                        <div class="code ${ hidden }">
-                            <span>
-                                ${ theItemObject.codeEx }
-                            </span>
-                        </div>
-                    </div>
-                    `).appendTo('#whiteboard')
-                    .css({top: theItemObject.posTop, left: theItemObject.posLeft})
-                    .attr('data-id', theItemObject.itemID)
-                    .draggable({
-                        scroll: false,
-                        containment: 'parent',
-                        stop: function(event, ui) {
-                            let itemID = $(this).attr('data-id');
-                            // let opened = $(this).attr('data-opened');
-                            theItemObject.posTop = $(this).position().top;
-                            theItemObject.posLeft = $(this).position().left;
-
-                            localStorage.setItem(itemID, JSON.stringify(theItemObject));
-                        }
-                    });
-
-                }
-
-            }
-        }
-    }
-
     setNoodles();
 
     // Set variables
     const whiteboard = $( '#whiteboard' );
-    let item = $( '.item' );                // REMOVE when adding items is enabled
     let code = $( '.item .code' );
     let description = $( '.item-description' );
     let toggleNew = $( '#show-add-form' );
     let addNoodleForm = $( '#add-noodle-form' );
-
-    // item.attr('data-opened', 'false')  // REMOVE when adding items is enabled
-
-    item.draggable({              // REMOVE when adding items is enabled
-        scroll: false,
-        containment: 'parent'
-    });
 
     // Toggle "Add New" form
     toggleNew.click(function(e) {
@@ -93,6 +29,7 @@ $(function() {
             if ($(this).attr('data-opened') === 'false') {
                 $(this).addClass('big-font');
             }
+            // $(this).find('.item-heading').css({ color: '#848484' });
         },
         mouseleave: function() {
             if ($(this).attr('data-opened') === 'false') {
@@ -135,13 +72,18 @@ $(function() {
 
             addNoodleForm.addClass('hidden');
 
+            let cleanCode = escapeHtml(theCode.val());
+            let preCode = cleanCode.replace(/\n/g, '<br>\n').replace(/ /g, '&nbsp;');
+            cleanHeading = escapeHtml(theHeading.val());
+            cleanDescription = escapeHtml(theDescription.val());
+
             $(`
                 <div class="item" data-opened="false">
-                    <span class="item-heading">${ theHeading.val() }</span>
-                    <p class="item-description hidden">${ theDescription.val() }</p>
+                    <span class="item-heading">${ cleanHeading }</span>
+                    <p class="item-description hidden">${ cleanDescription }</p>
                     <div class="code hidden">
                         <span>
-                            ${ theCode.val() }
+                            ${ preCode }
                         </span>
                     </div>
                 </div>
@@ -156,13 +98,12 @@ $(function() {
                     let theItemObject = JSON.parse(localStorage.getItem(itemID));
                     theItemObject.posTop = $(this).position().top;
                     theItemObject.posLeft = $(this).position().left;
-                    theItemObject.isOpened = false;
 
                     localStorage.setItem(itemID, JSON.stringify(theItemObject));
                 }
             });
 
-            let itemObj = new Item(currentCounter, theHeading.val(), theDescription.val(), theCode.val());
+            let itemObj = new Item(currentCounter, cleanHeading, cleanDescription, preCode, false);
 
             localStorage.setItem(currentCounter, JSON.stringify(itemObj));
 
@@ -175,5 +116,75 @@ $(function() {
         }
 
     });
+
+
+    // Functions
+
+    // Set Noodles
+    function setNoodles() {
+        if(localStorage.length) {
+            for(let key in localStorage) {
+                // Check if key is a number (there is a 'counter' key also)
+                if(Number(key)) {
+
+                    let theItemObject = JSON.parse(localStorage.getItem(key));
+                    // Convert bool string to bool and set class
+                    let hidden = JSON.parse(theItemObject.isOpened) ? '' : 'hidden';
+                    let big = JSON.parse(theItemObject.isOpened) ? 'big-font' : '';
+
+                    $(`
+                    <div class="item ${ big }" data-opened=${ theItemObject.isOpened }>
+                        <span class="item-heading">${ theItemObject.heading }</span>
+                        <p class="item-description ` + hidden + `">${ theItemObject.description }</p>
+                        <div class="code ${ hidden }">
+                            <span>
+                                ${ theItemObject.codeEx }
+                            </span>
+                        </div>
+                    </div>
+                    `).appendTo('#whiteboard')
+                    .css({ top: theItemObject.posTop, left: theItemObject.posLeft })
+                    .attr('data-id', theItemObject.itemID)
+                    .draggable({
+                        scroll: false,
+                        containment: 'parent',
+                        stop: function(event, ui) {
+                            let itemID = $(this).attr('data-id');
+                            // let opened = $(this).attr('data-opened');
+                            theItemObject.posTop = $(this).position().top;
+                            theItemObject.posLeft = $(this).position().left;
+
+                            localStorage.setItem(itemID, JSON.stringify(theItemObject));
+                        }
+                    });
+
+                }
+
+            }
+        }
+    }
+
+    function Item (itemID, heading, description, codeEx, isOpened) {
+
+        this.itemID = itemID;
+        this.heading = heading;
+        this.description = description;
+        this.codeEx = codeEx;
+        this.isOpened = isOpened;
+
+        let posTop = 0;
+        let posLeft = 0;
+    }
+
+    function escapeHtml(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
 
 });
