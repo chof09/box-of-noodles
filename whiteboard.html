@@ -14,16 +14,10 @@
 
         <!-- Custom fonts -->
         <link href="https://fonts.googleapis.com/css?family=Average+Sans|Ubuntu|Ubuntu+Mono" rel="stylesheet">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
 
         <!-- Custom CSS -->
         <link href="css/style-whtbrd.css" rel="stylesheet">
-
-        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-        <!--[if lt IE 9]>
-            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-        <![endif]-->
 
     </head>
 
@@ -31,46 +25,23 @@
 
         <div id="whiteboard">
 
-            <!-- <div class="item">
-                <span class="item-heading">console.log()</span>
-                <p class="item-description hidden">Prints given properties to the console.</p>
-                <div class="code hidden">
-                    <span>
-                        console.log('burek');<br>
-                        console.log(48);<br>
-                        let value = 'jedrenje';<br>
-                        console.log(value);
-                    </span>
-                </div>
-            </div> -->
-
-            <!-- <div class="add-new">
-                <div class="add-new-top"><h3>Add new item</h3><a href="#" id="submit">Add</a></div>
-                <input type="text" id="add-heading" name="heading" placeholder="Heading..."><br>
-                <input type="text" id="add-description" name="description" placeholder="Description..."><br>
-                <textarea id="add-code" placeholder="Example code..."></textarea>
-            </div> -->
-
             <div class="add-new-wrap">
                 <div id="add-noodle-form" class="hidden">
                     <input type="text" id="add-heading" name="heading" placeholder="Heading..."><br>
                     <input type="text" id="add-description" name="description" placeholder="Description..."><br>
                     <textarea id="add-code" placeholder="Example code..."></textarea>
-                    <button type="button" id="create">Create</button>
+                    <button type="button" id="create">Create Noodle</button>
                 </div>
-                <button type="button" id="show-add-form">New Noodle</button>
+                <button type="button" id="show-add-form" title="New Noodle"><i class="fas fa-plus"></i></button>
             </div>
             
             <div id="trashcan"></div>
 
         </div>
         
-        <!-- Bootstrap JS - jQuery, Popper, Bootstrap.js -->
-        <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> -->
+        <!-- jQuery, jQuery UI -->
         <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
-        <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.js"></script> -->
-        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script> -->
 
         <!-- Custom JS -->
         <script src="js/script-whtbrd.js" type="text/javascript"></script>

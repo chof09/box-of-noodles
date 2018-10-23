@@ -12,6 +12,7 @@ $(function() {
     // Toggle "Add New" form
     toggleNew.click(function(e) {
         e.stopPropagation();
+        toggleNew.addClass('active');
         addNoodleForm.toggleClass('hidden');
     });
 
@@ -21,6 +22,7 @@ $(function() {
 
     $('body, html').click(function() {
         addNoodleForm.addClass('hidden');
+        toggleNew.removeClass('active');
     });
 
     // Item on hover
@@ -29,7 +31,6 @@ $(function() {
             if ($(this).attr('data-opened') === 'false') {
                 $(this).addClass('big-font');
             }
-            // $(this).find('.item-heading').css({ color: '#848484' });
         },
         mouseleave: function() {
             if ($(this).attr('data-opened') === 'false') {
@@ -72,8 +73,8 @@ $(function() {
             addNoodleForm.addClass('hidden');
             let cleanCode = escapeHtml(theCode.val());
             let preCode = cleanCode.replace(/\n/g, '<br>\n').replace(/ /g, '&nbsp;');
-            cleanHeading = escapeHtml(theHeading.val());
-            cleanDescription = escapeHtml(theDescription.val());
+            let cleanHeading = escapeHtml(theHeading.val());
+            let cleanDescription = escapeHtml(theDescription.val());
 
             let itemObj = new Item(currentCounter, cleanHeading, cleanDescription, preCode, false);
 
@@ -82,9 +83,8 @@ $(function() {
 
             setNoodles(currentCounter);
 
-            theHeading.val('');
-            theDescription.val('');
-            theCode.val('');
+            addNoodleForm.find(':input').val('');
+            toggleNew.removeClass('active');
 
         } else {
             alert('Noodles must have headings!');
@@ -114,7 +114,7 @@ $(function() {
 
     // Get Noodles or one Noodle specified by its key
     function getNoodles(func, one) {
-        if(localStorage.length) {
+        if (localStorage.length) {
             if(one === false) {
                 for(let key in localStorage) {
                     // Check if key is a number (there is a 'counter' key also)
@@ -131,46 +131,46 @@ $(function() {
     // Set Noodles
     function setNoodles(one=false) {
 
-        getNoodles(function(key) {
+            getNoodles(function(key) {
 
-            let theItemObject = JSON.parse(localStorage.getItem(key));
-            // Convert bool string to bool and set class
-            let hidden = JSON.parse(theItemObject.isOpened) ? '' : 'hidden';
-            let big = JSON.parse(theItemObject.isOpened) ? 'big-font' : '';
+                let theItemObject = JSON.parse(localStorage.getItem(key));
+                // Convert bool string to bool and set class
+                let hidden = JSON.parse(theItemObject.isOpened) ? '' : 'hidden';
+                let big = JSON.parse(theItemObject.isOpened) ? 'big-font' : '';
 
-            $(`
-            <div class="item ${ big }" data-opened="${ theItemObject.isOpened }">
-                <span class="item-heading">${ theItemObject.heading }</span>
-                <p class="item-description ` + hidden + `">${ theItemObject.description }</p>
-                <div class="code ${ hidden }">
-                    <span>
-                        ${ theItemObject.codeEx }
-                    </span>
+                $(`
+                <div class="item ${ big }" data-opened="${ theItemObject.isOpened }">
+                    <span class="item-heading">${ theItemObject.heading }</span>
+                    <p class="item-description ` + hidden + `">${ theItemObject.description }</p>
+                    <div class="code ${ hidden }">
+                        <span>
+                            ${ theItemObject.codeEx }
+                        </span>
+                    </div>
                 </div>
-            </div>
-            `).appendTo('#whiteboard')
-            .css({ top: theItemObject.posTop, left: theItemObject.posLeft })
-            .attr('data-id', theItemObject.itemID)
-            .draggable({
-                scroll: false,
-                containment: 'parent',
-                start: function(event, ui) {
-                    $(this).attr('data-dropped', false);
-                },
-                stop: function(event, ui) {
-                    $('#trashcan').promise().done(function() {
-                        let isDropped = JSON.parse(ui.helper.attr('data-dropped'));
-                        if(!isDropped) {
-                            let itemID = ui.helper.attr('data-id');
-                            theItemObject.posTop = ui.helper.position().top;
-                            theItemObject.posLeft = ui.helper.position().left;
+                `).appendTo('#whiteboard')
+                .css({ top: theItemObject.posTop, left: theItemObject.posLeft })
+                .attr('data-id', theItemObject.itemID)
+                .draggable({
+                    scroll: false,
+                    containment: 'parent',
+                    start: function(event, ui) {
+                        $(this).attr('data-dropped', false);
+                    },
+                    stop: function(event, ui) {
+                        $('#trashcan').promise().done(function() {
+                            let isDropped = JSON.parse(ui.helper.attr('data-dropped'));
+                            if(!isDropped) {
+                                let itemID = ui.helper.attr('data-id');
+                                theItemObject.posTop = ui.helper.position().top;
+                                theItemObject.posLeft = ui.helper.position().left;
 
-                            localStorage.setItem(itemID, JSON.stringify(theItemObject));
-                        }
-                    });
-                }
-            });
-        }, one);
+                                localStorage.setItem(itemID, JSON.stringify(theItemObject));
+                            }
+                        });
+                    }
+                });
+            }, one);
     }
 
     function deleteNoodle(key) {
@@ -186,8 +186,8 @@ $(function() {
         this.codeEx = codeEx;
         this.isOpened = isOpened;
 
-        let posTop = 0;
-        let posLeft = 0;
+        this.posTop = 0;
+        this.posLeft = 0;
     }
 
     function escapeHtml(unsafe) {
@@ -198,7 +198,5 @@ $(function() {
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
     }
-
-
 
 });
