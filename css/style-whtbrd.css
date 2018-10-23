@@ -6,6 +6,7 @@
 #whiteboard {
     height: 100vh;
     position: relative;
+    overflow: hidden;
 }
 
 .item {
@@ -48,7 +49,7 @@
     margin: 15px 0;
     padding-left: 15px;
     font-size: 0.9em;
-    border-left: 5px solid #0e92a2; /* #bcbcbc; */
+    border-left: 5px solid #0e92a2;
 }
 
 .hidden {
@@ -58,29 +59,6 @@
 .big-font {
     font-size: 1.2em;
 }
-
-/*.add-new {
-    max-width: 242px;
-    margin: 0 auto 20px;
-    align-self: flex-end;
-}
-
-.add-new h3 {
-    display: inline;
-}
-
-.add-new a#submit {
-    float: right;
-    text-decoration: none;
-    color: #ffffff;
-    padding: 3px 8px;
-    background-color: #0022ee;
-    border-radius: 5px;
-}
-
-textarea#add-code {
-    width: 100%;
-}*/
 
 .add-new-wrap {
     z-index: 1000;
@@ -111,4 +89,22 @@ textarea#add-code {
     margin-bottom: 10px;
     padding: 5px;
     box-sizing: border-box;
+}
+
+#trashcan {
+    position: absolute;
+    bottom: 0px;
+    left: calc(50% - 31px);
+    background-image: url('../imgs/garbage-trash-undroppable.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 70px;
+    width: 62px;
+}
+
+#trashcan.highlight {
+    background-image: url('../imgs/garbage-trash-droppable-light.png');
+    height: 115px;
+    width: 103px;
+    left: calc(50% - 51px);
 }

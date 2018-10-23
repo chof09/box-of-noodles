@@ -65,103 +65,117 @@ $(function() {
         let theHeading = $( '#add-heading' );
         let theDescription = $( '#add-description' );
         let theCode = $( '#add-code' );
-        let currentCounter = localStorage.getItem('counter') ? Number(localStorage.getItem('counter')) + 1 : 1;
-        localStorage.setItem('counter', currentCounter);
 
-        if (theHeading.val() && theDescription.val() && theCode.val()) {
+        if (theHeading.val()) {
 
+            let currentCounter = localStorage.getItem('counter') ? Number(localStorage.getItem('counter')) + 1 : 1;
             addNoodleForm.addClass('hidden');
-
             let cleanCode = escapeHtml(theCode.val());
             let preCode = cleanCode.replace(/\n/g, '<br>\n').replace(/ /g, '&nbsp;');
             cleanHeading = escapeHtml(theHeading.val());
             cleanDescription = escapeHtml(theDescription.val());
 
-            $(`
-                <div class="item" data-opened="false">
-                    <span class="item-heading">${ cleanHeading }</span>
-                    <p class="item-description hidden">${ cleanDescription }</p>
-                    <div class="code hidden">
-                        <span>
-                            ${ preCode }
-                        </span>
-                    </div>
-                </div>
-            `).appendTo('#whiteboard')
-            // .attr({ 'data-opened': false, 'data-id': currentCounter })
-            .attr('data-id', currentCounter)
-            .draggable({
-                scroll: false,
-                containment: 'parent',
-                stop: function(event, ui) {
-                    let itemID = $(this).attr('data-id');
-                    let theItemObject = JSON.parse(localStorage.getItem(itemID));
-                    theItemObject.posTop = $(this).position().top;
-                    theItemObject.posLeft = $(this).position().left;
-
-                    localStorage.setItem(itemID, JSON.stringify(theItemObject));
-                }
-            });
-
             let itemObj = new Item(currentCounter, cleanHeading, cleanDescription, preCode, false);
 
             localStorage.setItem(currentCounter, JSON.stringify(itemObj));
+            localStorage.setItem('counter', currentCounter);
+
+            setNoodles(currentCounter);
 
             theHeading.val('');
             theDescription.val('');
             theCode.val('');
 
         } else {
-            alert('No blanks pls. TY');
+            alert('Noodles must have headings!');
         }
 
+    });
+
+    // Delete Item
+    $('#trashcan').droppable({
+        accept: '.item',
+        classes: {
+            'ui-droppable-hover': 'highlight'
+        },
+        tolerance: 'pointer',
+        drop: function(event, ui) {
+            ui.draggable.attr('data-dropped', true);
+            let msg = "Are you sure you want to delete this Noodle?";
+            if (confirm(msg)) {
+                let id = ui.draggable.attr('data-id');
+                deleteNoodle(id);
+            }
+        }
     });
 
 
     // Functions
 
-    // Set Noodles
-    function setNoodles() {
+    // Get Noodles or one Noodle specified by its key
+    function getNoodles(func, one) {
         if(localStorage.length) {
-            for(let key in localStorage) {
-                // Check if key is a number (there is a 'counter' key also)
-                if(Number(key)) {
+            if(one === false) {
+                for(let key in localStorage) {
+                    // Check if key is a number (there is a 'counter' key also)
+                    if(Number(key)) {
+                        func(key);
+                    }
+                }
+            } else {
+                func(one);
+            }
+        }
+    }
 
-                    let theItemObject = JSON.parse(localStorage.getItem(key));
-                    // Convert bool string to bool and set class
-                    let hidden = JSON.parse(theItemObject.isOpened) ? '' : 'hidden';
-                    let big = JSON.parse(theItemObject.isOpened) ? 'big-font' : '';
+    // Set Noodles
+    function setNoodles(one=false) {
 
-                    $(`
-                    <div class="item ${ big }" data-opened=${ theItemObject.isOpened }>
-                        <span class="item-heading">${ theItemObject.heading }</span>
-                        <p class="item-description ` + hidden + `">${ theItemObject.description }</p>
-                        <div class="code ${ hidden }">
-                            <span>
-                                ${ theItemObject.codeEx }
-                            </span>
-                        </div>
-                    </div>
-                    `).appendTo('#whiteboard')
-                    .css({ top: theItemObject.posTop, left: theItemObject.posLeft })
-                    .attr('data-id', theItemObject.itemID)
-                    .draggable({
-                        scroll: false,
-                        containment: 'parent',
-                        stop: function(event, ui) {
-                            let itemID = $(this).attr('data-id');
-                            // let opened = $(this).attr('data-opened');
-                            theItemObject.posTop = $(this).position().top;
-                            theItemObject.posLeft = $(this).position().left;
+        getNoodles(function(key) {
+
+            let theItemObject = JSON.parse(localStorage.getItem(key));
+            // Convert bool string to bool and set class
+            let hidden = JSON.parse(theItemObject.isOpened) ? '' : 'hidden';
+            let big = JSON.parse(theItemObject.isOpened) ? 'big-font' : '';
+
+            $(`
+            <div class="item ${ big }" data-opened="${ theItemObject.isOpened }">
+                <span class="item-heading">${ theItemObject.heading }</span>
+                <p class="item-description ` + hidden + `">${ theItemObject.description }</p>
+                <div class="code ${ hidden }">
+                    <span>
+                        ${ theItemObject.codeEx }
+                    </span>
+                </div>
+            </div>
+            `).appendTo('#whiteboard')
+            .css({ top: theItemObject.posTop, left: theItemObject.posLeft })
+            .attr('data-id', theItemObject.itemID)
+            .draggable({
+                scroll: false,
+                containment: 'parent',
+                start: function(event, ui) {
+                    $(this).attr('data-dropped', false);
+                },
+                stop: function(event, ui) {
+                    $('#trashcan').promise().done(function() {
+                        let isDropped = JSON.parse(ui.helper.attr('data-dropped'));
+                        if(!isDropped) {
+                            let itemID = ui.helper.attr('data-id');
+                            theItemObject.posTop = ui.helper.position().top;
+                            theItemObject.posLeft = ui.helper.position().left;
 
                             localStorage.setItem(itemID, JSON.stringify(theItemObject));
                         }
                     });
-
                 }
+            });
+        }, one);
+    }
 
-            }
-        }
+    function deleteNoodle(key) {
+        whiteboard.find(`.item[data-id="${ key }"]`).remove();
+        localStorage.removeItem(key);
     }
 
     function Item (itemID, heading, description, codeEx, isOpened) {
