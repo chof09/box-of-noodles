@@ -142,6 +142,7 @@
     cursor: pointer;
     border-radius: 5px;
     background-color: #ffffff;
+    font-size: 15px;
 }
 
 #add-noodle-form #create:hover {
