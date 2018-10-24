@@ -83,6 +83,10 @@
     color: #ffffff;
 }
 
+#show-add-form::-moz-focus-inner {
+    border: none;
+}
+
 #show-add-form.active {
     background-color: #0e92a2;
     color: #ffffff;
@@ -96,11 +100,12 @@
     min-width: 350px;
     margin-bottom: 20px;
     padding: 10px;
-    background-color: #ffffff;
+    background-color: #0e92a2;
     overflow: hidden;
-    -webkit-box-shadow: 0px 0px 0px 3px #0e92a2;
+    border-radius: 5px;
+    /*-webkit-box-shadow: 0px 0px 0px 3px #0e92a2;
     -moz-box-shadow: 0px 0px 0px 3px #0e92a2;
-    box-shadow: 0px 0px 0px 3px #0e92a2;
+    box-shadow: 0px 0px 0px 3px #0e92a2;*/
 }
 
 #add-noodle-form input {
@@ -111,11 +116,18 @@
     margin-bottom: 10px;
     padding: 0px 5px;
     box-sizing: border-box;
-    border: 2px solid #0e92a2;
+    border: none;
+    /*border: 2px solid #0e92a2;*/
     border-radius: 5px;
-    -webkit-box-shadow: inset 0px 0px 2px 0px #0e92a2;
-    -moz-box-shadow: inset 0px 0px 2px 0px #0e92a2;
-    box-shadow: inset 0px 0px 2px 0px #0e92a2;
+    -webkit-box-shadow: inset 0px 0px 2px 0px #000000;
+    -moz-box-shadow: inset 0px 0px 2px 0px #000000;
+    box-shadow: inset 0px 0px 2px 0px #000000;
+}
+
+#add-noodle-form input:focus,
+#add-noodle-form input:active {
+    outline: 1px solid #ffffff;
+    outline-offset: 1px;
 }
 
 #add-noodle-form textarea {
@@ -127,11 +139,18 @@
     margin-bottom: 10px;
     padding: 5px;
     box-sizing: border-box;
-    border: 2px solid #0e92a2;
+    border: none;
+    /*border: 2px solid #0e92a2;*/
     border-radius: 5px;
-    -webkit-box-shadow: inset 0px 0px 2px 0px #0e92a2;
-    -moz-box-shadow: inset 0px 0px 2px 0px #0e92a2;
-    box-shadow: inset 0px 0px 2px 0px #0e92a2;
+    -webkit-box-shadow: inset 0px 0px 2px 0px #000000;
+    -moz-box-shadow: inset 0px 0px 2px 0px #000000;
+    box-shadow: inset 0px 0px 2px 0px #000000;
+}
+
+#add-noodle-form textarea:focus,
+#add-noodle-form textarea:active {
+    outline: 1px solid #ffffff;
+    outline-offset: 1px;
 }
 
 #add-noodle-form #create {
@@ -141,16 +160,28 @@
     float: right;
     cursor: pointer;
     border-radius: 5px;
-    background-color: #ffffff;
+    background-color: #0e92a2;
     font-size: 15px;
+    color: white;
 }
 
 #add-noodle-form #create:hover {
     text-decoration: none;
     background-color: #ffffff;
-    -webkit-box-shadow: 0px 0px 0px 3px #0e92a2;
+    color: #027383;
+    /*-webkit-box-shadow: 0px 0px 0px 3px #0e92a2;
     -moz-box-shadow: 0px 0px 0px 3px #0e92a2;
-    box-shadow: 0px 0px 0px 3px #0e92a2;
+    box-shadow: 0px 0px 0px 3px #0e92a2;*/
+}
+
+#add-noodle-form #create::-moz-focus-inner {
+    border: none;
+}
+
+#add-noodle-form #create:focus,
+#add-noodle-form #create:active {
+    outline: 1px solid #ffffff;
+    outline-offset: 1px;
 }
 
 #trashcan {

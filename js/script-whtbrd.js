@@ -12,7 +12,7 @@ $(function() {
     // Toggle "Add New" form
     toggleNew.click(function(e) {
         e.stopPropagation();
-        toggleNew.addClass('active');
+        toggleNew.toggleClass('active');
         addNoodleForm.toggleClass('hidden');
     });
 
