@@ -1,11 +1,11 @@
 $(function() {
 
-    setNoodles();
+    renderAllNoodles();
 
     // Set variables
     const whiteboard = $( '#whiteboard' );
-    let code = $( '.item .code' );
-    let description = $( '.item-description' );
+    let code = $( '.noodle .code' );
+    let description = $( '.noodle-description' );
     let toggleNew = $( '#show-add-form' );
     let addNoodleForm = $( '#add-noodle-form' );
 
@@ -25,7 +25,7 @@ $(function() {
         toggleNew.removeClass('active');
     });
 
-    // Item on hover
+    // Noodle on hover
     whiteboard.on({
         mouseenter: function() {
             if ($(this).attr('data-opened') === 'false') {
@@ -37,31 +37,31 @@ $(function() {
                 $(this).removeClass('big-font');
             }
         }
-    }, '.item');
+    }, '.noodle');
 
-    // Item click
-    whiteboard.on('click', '.item', function() {
+    // Noodle on click
+    whiteboard.on('click', '.noodle', function() {
 
-        let itemID = $(this).attr('data-id');
+        let noodleID = $(this).attr('data-id');
         let opened = $(this).attr('data-opened');
-        let theItemObject = JSON.parse(localStorage.getItem(itemID));
+        let noodleObject = getNoodleObject(noodleID);
 
         if (opened === 'false') {
             $(this).find('.code').removeClass('hidden');
-            $(this).find('.item-description').removeClass('hidden');
+            $(this).find('.noodle-description').removeClass('hidden');
             $(this).attr('data-opened', 'true');
         } else {
             $(this).find('.code').addClass('hidden');
-            $(this).find('.item-description').addClass('hidden');
+            $(this).find('.noodle-description').addClass('hidden');
             $(this).attr('data-opened', 'false');
         }
 
-        theItemObject.isOpened = $(this).attr('data-opened');
-        localStorage.setItem(itemID, JSON.stringify(theItemObject));
+        noodleObject.isOpened = $(this).attr('data-opened');
+        saveNoodle(noodleObject);
 
     });
 
-    // Create new item
+    // Create new Noodle
     $('#create').on('click', function() {
         let theHeading = $( '#add-heading' );
         let theDescription = $( '#add-description' );
@@ -76,12 +76,12 @@ $(function() {
             let cleanHeading = escapeHtml(theHeading.val());
             let cleanDescription = escapeHtml(theDescription.val());
 
-            let itemObj = new Item(currentCounter, cleanHeading, cleanDescription, preCode, false);
+            let noodleObject = new Noodle(currentCounter, cleanHeading, cleanDescription, preCode, false);
 
-            localStorage.setItem(currentCounter, JSON.stringify(itemObj));
+            saveNoodle(noodleObject);
             localStorage.setItem('counter', currentCounter);
 
-            setNoodles(currentCounter);
+            renderNoodle(noodleObject);
 
             addNoodleForm.find(':input').val('');
             toggleNew.removeClass('active');
@@ -92,95 +92,132 @@ $(function() {
 
     });
 
-    // Delete Item
+    // Delete Noodle
     $('#trashcan').droppable({
-        accept: '.item',
+        accept: '.noodle',
         classes: {
             'ui-droppable-hover': 'highlight'
         },
         tolerance: 'pointer',
         drop: function(event, ui) {
             ui.draggable.attr('data-dropped', true);
-            let msg = "Are you sure you want to delete this Noodle?";
-            if (confirm(msg)) {
-                let id = ui.draggable.attr('data-id');
-                deleteNoodle(id);
-            }
+            let noodleId = ui.draggable.attr('data-id');
+            confirmDelete(noodleId);
+            // let msg = "Are you sure you want to delete this Noodle?";
+            // if (confirm(msg)) {
+                
+                // deleteNoodle(id);
         }
     });
 
 
     // Functions
+    // ########################################################
 
-    // Get Noodles or one Noodle specified by its key
-    function getNoodles(func, one) {
+    // Set Noodles
+    function renderAllNoodles() {
+
         if (localStorage.length) {
-            if(one === false) {
-                for(let key in localStorage) {
-                    // Check if key is a number (there is a 'counter' key also)
-                    if(Number(key)) {
-                        func(key);
-                    }
+            for(let key in localStorage) {
+                // Check if key is a number (there is a also a 'counter' key)
+                if(Number(key)) {
+                    let noodleObject = getNoodleObject(key);
+                    renderNoodle(noodleObject);
                 }
-            } else {
-                func(one);
             }
+        }
+
+    }
+
+    // Get Noodle Object
+    function getNoodleObject (id) {
+        if (localStorage.getItem(id)) {
+            return JSON.parse(localStorage.getItem(id));
         }
     }
 
-    // Set Noodles
-    function setNoodles(one=false) {
+    // Save Noodle
+    function saveNoodle(noodleObject) {
+        localStorage.setItem(noodleObject.noodleID, JSON.stringify(noodleObject));
+    }
 
-            getNoodles(function(key) {
-
-                let theItemObject = JSON.parse(localStorage.getItem(key));
-                // Convert bool string to bool and set class
-                let hidden = JSON.parse(theItemObject.isOpened) ? '' : 'hidden';
-                let big = JSON.parse(theItemObject.isOpened) ? 'big-font' : '';
-
-                $(`
-                <div class="item ${ big }" data-opened="${ theItemObject.isOpened }">
-                    <span class="item-heading">${ theItemObject.heading }</span>
-                    <p class="item-description ` + hidden + `">${ theItemObject.description }</p>
-                    <div class="code ${ hidden }">
+    // Generate Noodle
+    function generateNoodle(noodleObject) {
+        let isHiddenClass = JSON.parse(noodleObject.isOpened) ? '' : 'hidden';
+        let isBigFontClass = JSON.parse(noodleObject.isOpened) ? 'big-font' : '';
+        let noodleSelector = $(`
+                <div class="noodle ${ isBigFontClass }" data-opened="${ noodleObject.isOpened }">
+                    <span class="noodle-heading">${ noodleObject.heading }</span>
+                    <p class="noodle-description ${ isHiddenClass }">${ noodleObject.description }</p>
+                    <div class="code ${ isHiddenClass }">
                         <span>
-                            ${ theItemObject.codeEx }
+                            ${ noodleObject.codeEx }
                         </span>
                     </div>
                 </div>
-                `).appendTo('#whiteboard')
-                .css({ top: theItemObject.posTop, left: theItemObject.posLeft })
-                .attr('data-id', theItemObject.itemID)
-                .draggable({
-                    scroll: false,
-                    containment: 'parent',
-                    start: function(event, ui) {
-                        $(this).attr('data-dropped', false);
-                    },
-                    stop: function(event, ui) {
-                        $('#trashcan').promise().done(function() {
-                            let isDropped = JSON.parse(ui.helper.attr('data-dropped'));
-                            if(!isDropped) {
-                                let itemID = ui.helper.attr('data-id');
-                                theItemObject.posTop = ui.helper.position().top;
-                                theItemObject.posLeft = ui.helper.position().left;
-
-                                localStorage.setItem(itemID, JSON.stringify(theItemObject));
-                            }
-                        });
-                    }
-                });
-            }, one);
+                `);
+        return noodleSelector;
     }
 
+    // RenderNoodle
+    function renderNoodle(noodleObject) {
+        let noodleSelector = generateNoodle(noodleObject);
+        noodleSelector
+            .appendTo($('#whiteboard'))
+            .css({ top: noodleObject.posTop, left: noodleObject.posLeft })
+            .attr('data-id', noodleObject.noodleID)
+            .draggable({
+                scroll: false,
+                containment: 'parent',
+                start: function(event, ui) {
+                    $(this).attr('data-dropped', false);
+                },
+                stop: function(event, ui) {
+                    let isDropped = JSON.parse(ui.helper.attr('data-dropped'));
+                    if(!isDropped) {
+                        let noodleID = ui.helper.attr('data-id');
+                        noodleObject.isOpened = ui.helper.attr('data-opened');
+                        noodleObject.posTop = ui.helper.position().top;
+                        noodleObject.posLeft = ui.helper.position().left;
+                        saveNoodle(noodleObject);
+                    }
+                }
+            });
+    }
+
+    // Confirm delete
+    function confirmDelete(noodleID) {
+
+        $( "#dialog-confirm" ).dialog({
+            resizable: false,
+            draggable: false,
+            height: 150,
+            width: 400,
+            modal: true,
+            buttons: {
+                'Cancel': function() {
+                    $( this ).dialog( "close" );
+                },
+                'Delete': function() {
+                    deleteNoodle(noodleID);
+                    $( this ).dialog( "close" );
+                }
+            },
+            closeText: ''
+        });
+
+    }
+
+    // Delete Noodle
     function deleteNoodle(key) {
-        whiteboard.find(`.item[data-id="${ key }"]`).remove();
+        whiteboard.find(`.noodle[data-id="${ key }"]`).remove();
         localStorage.removeItem(key);
     }
 
-    function Item (itemID, heading, description, codeEx, isOpened) {
+    // Noodle constructor
+    function Noodle(noodleID, heading, description, codeEx, isOpened) {
 
-        this.itemID = itemID;
+        this.noodleID = noodleID;
         this.heading = heading;
         this.description = description;
         this.codeEx = codeEx;
@@ -190,6 +227,7 @@ $(function() {
         this.posLeft = 0;
     }
 
+    // Basic HTML escape function
     function escapeHtml(unsafe) {
         return unsafe
             .replace(/&/g, "&amp;")
