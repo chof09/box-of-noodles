@@ -35,15 +35,16 @@
             <button type="button" id="show-add-form" title="New Noodle"><i class="fas fa-plus"></i></button>
         </div>
         
-        <div id="trashcan"></div>
+        <div id="trashcan" data-menu="false"></div>
+        <div id="clear" class="hidden"><a id="clear-btn" href="#">Dump All Noodles</a></div>
 
         <div id="load-demo">
             <a href="#" id="load-demo-btn">Load Demo Content</a>
         </div>
 
-        <div id="dialog-confirm" title="Delete Noodle?">
-            <p>Are you sure you want to delete this Noodle?</p>
-        </div>
+        <div id="confirm-delete" class="dialog-confirm"></div>
+
+        <div id="confirm-clear" class="dialog-confirm"></div>
         
         <!-- jQuery, jQuery UI -->
         <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>

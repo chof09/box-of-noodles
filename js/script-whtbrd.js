@@ -29,12 +29,14 @@ $(function() {
             e.stopPropagation();
         });
 
+    // Body on Click
         $('body, html').click(function() {
             addNoodleForm.addClass('hidden');
             toggleNew.removeClass('active');
+            toggleClearMenu(true);
         });
 
-        // Noodle on hover
+    // Noodle on hover
         whiteboard.on({
             mouseenter: function() {
                 if ($(this).attr('data-opened') === 'false') {
@@ -48,7 +50,7 @@ $(function() {
             }
         }, '.noodle');
 
-        // Noodle on click
+    // Noodle on click
         whiteboard.on('click', '.noodle', function() {
 
             let noodleID = $(this).attr('data-id');
@@ -70,7 +72,7 @@ $(function() {
 
         });
 
-        // Create new Noodle
+    // Create new Noodle
         $('#create').on('click', function() {
             let theHeading = $( '#add-heading' );
             let theDescription = $( '#add-description' );
@@ -101,7 +103,7 @@ $(function() {
 
         });
 
-        // Delete Noodle
+    // Delete Noodle
         $('#trashcan').droppable({
             accept: '.noodle',
             classes: {
@@ -119,15 +121,38 @@ $(function() {
             }
         });
 
-        // Load demo content
+    // Clear All
+
+        // Show / hide Clear menu
+        $('body').on({
+            mouseenter: function() {
+                $(this).addClass('highlight');
+            },
+            mouseleave: function() {
+                $(this).removeClass('highlight');
+            }
+        }, '#trashcan');
+
+        $('body').on('click', '#trashcan', function(e) {
+            e.stopPropagation();
+            let isClicked = JSON.parse($(this).attr('data-menu'));
+            toggleClearMenu(isClicked);
+        });
+
+        // Clear Noodles
+        $('body').on('click', '#clear-btn', function() {
+            confirmClear();
+        });
+
+    // Load demo content
         $('#load-demo-btn').click(function(e) {
             e.preventDefault();
             loadDemo();
         });
 
 
-        // Functions
-        // ########################################################
+    // Functions
+    // ########################################################
 
         // Set Noodles
         function renderAllNoodles() {
@@ -187,11 +212,11 @@ $(function() {
                     containment: 'parent',
                     start: function(event, ui) {
                         $(this).attr('data-dropped', false);
+                        toggleClearMenu(true);
                     },
                     stop: function(event, ui) {
                         let isDropped = JSON.parse(ui.helper.attr('data-dropped'));
                         if(!isDropped) {
-                            // let noodleID = ui.helper.attr('data-id');
                             noodleObject.isOpened = ui.helper.attr('data-opened');
                             noodleObject.posTop = ui.helper.position().top;
                             noodleObject.posLeft = ui.helper.position().left;
@@ -204,7 +229,11 @@ $(function() {
         // Confirm delete
         function confirmDelete(noodleID) {
 
-            $( "#dialog-confirm" ).dialog({
+            $( "#confirm-delete" ).dialog({
+                create: function(event, ui) {
+                    $('#confirm-delete').html('<p>Are you sure you want to delete this Noodle?</p>');
+                },
+                title: "Delete Noodle",
                 resizable: false,
                 draggable: false,
                 height: 150,
@@ -213,11 +242,15 @@ $(function() {
                 buttons: {
                     'Cancel': function() {
                         $( this ).dialog( "close" );
+                        resetNoodlePosition(noodleID);
                     },
                     'Delete': function() {
-                        deleteNoodle(noodleID);
                         $( this ).dialog( "close" );
+                        deleteNoodle(noodleID);
                     }
+                },
+                beforeClose: function(event, ui) {
+                    resetNoodlePosition(noodleID);
                 },
                 closeText: ''
             });
@@ -228,6 +261,13 @@ $(function() {
         function deleteNoodle(key) {
             whiteboard.find(`.noodle[data-id="${ key }"]`).remove();
             localStorage.removeItem(key);
+        }
+
+        // Reset Noodle position
+        function resetNoodlePosition(noodleID) {
+            let noodleHTML = $('.noodle[data-id="' + noodleID + '"]');
+            let noodleObject = getNoodleObject(noodleID);
+            noodleHTML.css({ top: noodleObject.posTop, left: noodleObject.posLeft });
         }
 
         // Noodle constructor
@@ -252,6 +292,50 @@ $(function() {
                 .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#039;")
                 .replace(/\//g, "&frasl;");
+        }
+
+        // Toggle Clear Menu
+        function toggleClearMenu(isClicked) {
+            if(!isClicked) {
+                $('#trashcan').addClass('clicked');
+                $('#trashcan').attr('data-menu', 'true');
+                $('#clear').removeClass('hidden');
+            } else {
+                $('#trashcan').removeClass('clicked');
+                $('#trashcan').attr('data-menu', 'false');
+                $('#clear').addClass('hidden');
+            }
+        }
+
+        // Confirm Clear
+        function confirmClear() {
+            $( "#confirm-clear" ).dialog({
+                create: function(event, ui) {
+                    $('#confirm-clear').html('<p>Are you sure you want to delete all Noodles?</p>');
+                },
+                title: "Warning!",
+                resizable: false,
+                draggable: false,
+                height: 150,
+                width: 400,
+                modal: true,
+                buttons: {
+                    'Cancel': function() {
+                        $( this ).dialog( "close" );
+                    },
+                    'Delete': function() {
+                        $( this ).dialog( "close" );
+                        clearAll();
+                    }
+                },
+                closeText: ''
+            });
+        }
+
+        // Clear All
+        function clearAll() {
+            localStorage.clear();
+            $(`.noodle`).remove();
         }
 
         // Load demo content

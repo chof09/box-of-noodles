@@ -64,11 +64,11 @@ body {
     color: #210200;
 }
 
-#dialog-confirm {
+.dialog-confirm {
     display: none;
 }
 
-#dialog-confirm.ui-dialog-content.ui-widget-content {
+.dialog-confirm.ui-dialog-content.ui-widget-content {
     background-color: #ffffff;
     font-family: 'Average Sans', sans-serif;
     padding: 15px 8px 0px 20px;
@@ -287,6 +287,7 @@ body {
     background-size: contain;
     height: 70px;
     width: 62px;
+    cursor: pointer;
 }
 
 #trashcan.highlight {
@@ -294,6 +295,46 @@ body {
     height: 115px;
     width: 103px;
     left: calc(50% - 51px);
+}
+
+#trashcan.clicked {
+    background-image: url('../imgs/garbage-trash-droppable-norm.png');
+    height: 115px;
+    width: 103px;
+    left: calc(50% - 51px);
+}
+
+#clear {
+    position: absolute;
+    bottom: 40px;
+    left: calc(50% + 31px + 20px);
+    background-color: #ff2312;
+    padding: 4px 20px;
+    border-radius: 0px 5px 5px 0px;
+}
+
+#clear:before {
+    content: '';
+    position: absolute;
+    top: 0px;
+    left: -15px;
+    width: 0px;
+    height: 0px;
+    border-top: 15px solid transparent;
+    border-bottom: 15px solid transparent;
+    border-right: 15px solid #ff2312;
+}
+
+#clear-btn {
+    display: inherit;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+#clear-btn:hover,
+#clear-btn:active,
+#clear-btn:focus {
+    text-decoration: underline;
 }
 
 #load-demo {
@@ -308,6 +349,8 @@ body {
     color: #3f3f3f;
 }
 
-#load-demo-btn:hover {
+#load-demo-btn:hover,
+#load-demo-btn:active,
+#load-demo-btn:focus {
     text-decoration: underline;
 }
