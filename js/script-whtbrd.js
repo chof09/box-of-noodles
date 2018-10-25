@@ -119,6 +119,12 @@ $(function() {
             }
         });
 
+        // Load demo content
+        $('#load-demo-btn').click(function(e) {
+            e.preventDefault();
+            loadDemo();
+        });
+
 
         // Functions
         // ########################################################
@@ -148,6 +154,7 @@ $(function() {
         // Save Noodle
         function saveNoodle(noodleObject) {
             localStorage.setItem(noodleObject.noodleID, JSON.stringify(noodleObject));
+            localStorage.setItem('counter', noodleObject.noodleID);
         }
 
         // Generate Noodle
@@ -184,7 +191,7 @@ $(function() {
                     stop: function(event, ui) {
                         let isDropped = JSON.parse(ui.helper.attr('data-dropped'));
                         if(!isDropped) {
-                            let noodleID = ui.helper.attr('data-id');
+                            // let noodleID = ui.helper.attr('data-id');
                             noodleObject.isOpened = ui.helper.attr('data-opened');
                             noodleObject.posTop = ui.helper.position().top;
                             noodleObject.posLeft = ui.helper.position().left;
@@ -243,8 +250,80 @@ $(function() {
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
                 .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+                .replace(/'/g, "&#039;")
+                .replace(/\//g, "&frasl;");
         }
+
+        // Load demo content
+        function loadDemo() {
+
+            let currentCounter;
+            let demoContent = [
+                {
+                    noodleID: '',
+                    heading: 'console.log()',
+                    description: 'Prints given attributes to the console.',
+                    codeEx: 'console.log(&#039;example text&#039;); // example text<br>\nconsole.log(58); // 58',
+                    isOpened: true,
+                    posTop: 358,
+                    posLeft: 671
+                },
+                {
+                    noodleID: '',
+                    heading: 'Math.random()',
+                    description: 'Returns a radnom number from 0 to 1, not including 1',
+                    codeEx: 'Math.random(); // 0.6148032315208345',
+                    isOpened: true,
+                    posTop: 208,
+                    posLeft: 888
+                },
+                {
+                    noodleID: '',
+                    heading: 'Math.min()',
+                    description: "Returns the lowest-valued number passed into it, or NaN if any parameter isn't a number and can't be converted into one.",
+                    codeEx: 'Math.min(3, 5, 1, 7); // 1',
+                    isOpened: false,
+                    posTop: 27,
+                    posLeft: 251
+                },
+                {
+                    noodleID: '',
+                    heading: 'eval()',
+                    description: 'Evaluates JavaScript code represented as a string.',
+                    codeEx: "console.log(eval('2 + 2')); // 4<br>\nconsole.log(eval(new String('2 + 2'))); // 2 + 2",
+                    isOpened: false,
+                    posTop: 350,
+                    posLeft: 233
+                },
+                {
+                    noodleID: '',
+                    heading: 'Number.isNaN()',
+                    description: 'Determines whether the passed value is NaN and its type is Number.',
+                    codeEx: "Number.isNaN('text'); // false<br>\nNumber.isNaN(8); // true",
+                    isOpened: true,
+                    posTop: 42,
+                    posLeft: 681
+                },
+                {
+                    noodleID: '',
+                    heading: 'Object.create()',
+                    description: 'Creates a new object, using an existing object as the prototype of the newly created object.',
+                    codeEx: "const me = Object.create(person);",
+                    isOpened: true,
+                    posTop: 206,
+                    posLeft: 336
+                }
+            ];
+
+            for (let noodleObject of demoContent) {
+                currentCounter = localStorage.getItem('counter') ? Number(localStorage.getItem('counter')) + 1 : 1;
+                noodleObject.noodleID = currentCounter;
+                saveNoodle(noodleObject);
+                renderNoodle(noodleObject);
+            }
+
+        }
+
 
     } else {
         $('body').html("<p style='padding: 10px; font-size: 18px;'>"
