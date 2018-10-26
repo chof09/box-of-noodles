@@ -7,18 +7,35 @@ $(function() {
         isMobile = true;
     }
 
-    if(!isMobile) {
+    if(isMobile) {
 
+        $('body').html("<p style='padding: 10px; font-size: 18px;'>"
+                        + "<i class='fas fa-mobile-alt' style='font-size: 20px;'></i>&nbsp;&nbsp;"
+                        + "<span style='color: #0e92a2'>Box of Noodles</span> doesn't work on mobile devices.</p>");
+
+
+
+    } else {
+
+    // Arrows fadeout
+        if(!localStorage.length || localStorage.length === 1) {
+            $('.arrow').removeClass('hidden');
+            setTimeout(function() {
+                $('.arrow').fadeOut(500);
+            }, 1000);
+        }
+
+    // Render all Noodles
         renderAllNoodles();
 
-        // Set variables
+    // Set variables
         const whiteboard = $( '#whiteboard' );
         let code = $( '.noodle .code' );
         let description = $( '.noodle-description' );
         let toggleNew = $( '#show-add-form' );
         let addNoodleForm = $( '#add-noodle-form' );
 
-        // Toggle "Add New" form
+    // Toggle "Add New" form
         toggleNew.click(function(e) {
             e.stopPropagation();
             toggleNew.toggleClass('active');
@@ -81,6 +98,8 @@ $(function() {
             if (theHeading.val()) {
 
                 let currentCounter = localStorage.getItem('counter') ? Number(localStorage.getItem('counter')) + 1 : 1;
+                console.log('prije kreiranja novog noodlea: ' + Number(localStorage.getItem('counter')));
+                console.log('nakon kreiranja novog noodlea: ' + currentCounter);
                 addNoodleForm.addClass('hidden');
                 let cleanCode = escapeHtml(theCode.val());
                 let preCode = cleanCode.replace(/\n/g, '<br>\n').replace(/ /g, '&nbsp;');
@@ -90,9 +109,8 @@ $(function() {
                 let noodleObject = new Noodle(currentCounter, cleanHeading, cleanDescription, preCode, false);
 
                 saveNoodle(noodleObject);
-                localStorage.setItem('counter', currentCounter);
-
                 renderNoodle(noodleObject);
+                localStorage.setItem('counter', noodleObject.noodleID);
 
                 addNoodleForm.find(':input').val('');
                 toggleNew.removeClass('active');
@@ -175,7 +193,6 @@ $(function() {
         // Save Noodle
         function saveNoodle(noodleObject) {
             localStorage.setItem(noodleObject.noodleID, JSON.stringify(noodleObject));
-            localStorage.setItem('counter', noodleObject.noodleID);
         }
 
         // Generate Noodle
@@ -200,15 +217,15 @@ $(function() {
         function renderNoodle(noodleObject) {
             let noodleSelector = generateNoodle(noodleObject);
             let whiteboardHeightRem = toRem($('#whiteboard').height() - 30);
-            let cssStyle;
+            let cssPosition;
             if ( noodleObject.posTop > whiteboardHeightRem ) {
-                cssStyle = { top: whiteboardHeightRem + 'rem', left: noodleObject.posLeft + 'rem' };
+                cssPosition = { top: whiteboardHeightRem + 'rem', left: noodleObject.posLeft + 'rem' };
             } else {
-                cssStyle = { top: noodleObject.posTop + 'rem', left: noodleObject.posLeft + 'rem' };
+                cssPosition = { top: noodleObject.posTop + 'rem', left: noodleObject.posLeft + 'rem' };
             }
             noodleSelector
                 .appendTo($('#whiteboard'))
-                .css(cssStyle)
+                .css(cssPosition)
                 .attr('data-id', noodleObject.noodleID)
                 .draggable({
                     scroll: false,
@@ -379,7 +396,7 @@ $(function() {
                 {
                     noodleID: '',
                     heading: 'Math.random()',
-                    description: 'Returns a radnom number from 0 to 1, not including 1',
+                    description: 'Returns a random number from 0 to 1, not including 1',
                     codeEx: 'Math.random(); // 0.6148032315208345',
                     isOpened: true,
                     posTop: 27.1437,
@@ -428,16 +445,11 @@ $(function() {
                 noodleObject.noodleID = currentCounter;
                 saveNoodle(noodleObject);
                 renderNoodle(noodleObject);
+                localStorage.setItem('counter', noodleObject.noodleID);
             }
 
         }
-
-
-
-    } else {
-        $('body').html("<p style='padding: 10px; font-size: 18px;'>"
-                            + "<i class='fas fa-mobile-alt' style='font-size: 20px;'></i>&nbsp;&nbsp;"
-                            +   "<span style='color: #0e92a2'>Box of Noodles</span> doesn't work on mobile devices.</p>");
+        
     }
 
 });

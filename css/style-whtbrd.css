@@ -309,9 +309,11 @@ body {
 
 #clear {
     font-size: 16px;
+    box-sizing: border-box;
+    height: 30px;
     position: absolute;
     bottom: 40px;
-    left: calc(50% + 31px + 20px);
+    left: calc(50% + 43px + 15px);
     background-color: #ff2312;
     padding: 4px 20px;
     border-radius: 0px 5px 5px 0px;
@@ -358,4 +360,23 @@ body {
 #load-demo-btn:active,
 #load-demo-btn:focus {
     text-decoration: underline;
+}
+
+.arrow {
+    width: 130px;
+    height: 115px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-size: contain;
+    bottom: 60px;
+}
+
+#left-arrow {
+    background-image: url('../imgs/arrow-left.png');
+    left: 130px;
+}
+
+#right-arrow {
+    background-image: url('../imgs/arrow-right.png');
+    right: 250px;
 }
