@@ -4,6 +4,10 @@
     border: none;
 }
 
+html {
+    font-size: 1vw;
+}
+
 body {
     font-family: 'Average Sans', sans-serif;
 }
@@ -12,11 +16,13 @@ body {
     height: 100vh;
     position: relative;
     overflow: hidden;
+    font-size: 13px;
 }
 
 .ui-dialog {
     position: absolute;
     z-index: 1020;
+    font-size: 16px;
 }
 
 .ui-dialog:focus {
@@ -113,13 +119,10 @@ body {
 .noodle {
     position: absolute;
     display: inline-table;
-    top: 0px;
-    left: 0px;
     cursor: grab;
     font-family: 'Ubuntu Mono', monospace;
     color: #121212;
-    font-size: 14px;
-    min-width: 150px;
+    /*min-width: 150px;*/
     max-width: 360px;
     word-wrap: break-word;
 }
@@ -138,7 +141,7 @@ body {
 
 .noodle-heading {
     font-weight: bold;
-    font-size: 1.2em;
+    font-size: 1.3em;
 }
 
 .noodle-description {
@@ -160,7 +163,7 @@ body {
 }
 
 .big-font {
-    font-size: 1.2em;
+    font-size: 18px;
 }
 
 .add-new-wrap {
@@ -305,6 +308,7 @@ body {
 }
 
 #clear {
+    font-size: 16px;
     position: absolute;
     bottom: 40px;
     left: calc(50% + 31px + 20px);
@@ -342,6 +346,7 @@ body {
     position: absolute;
     bottom: 15px;
     right: 30px;
+    font-size: 16px;
 }
 
 #load-demo-btn {

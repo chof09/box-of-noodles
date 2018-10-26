@@ -114,10 +114,6 @@ $(function() {
                 ui.draggable.attr('data-dropped', true);
                 let noodleId = ui.draggable.attr('data-id');
                 confirmDelete(noodleId);
-                // let msg = "Are you sure you want to delete this Noodle?";
-                // if (confirm(msg)) {
-                    
-                    // deleteNoodle(id);
             }
         });
 
@@ -203,13 +199,21 @@ $(function() {
         // RenderNoodle
         function renderNoodle(noodleObject) {
             let noodleSelector = generateNoodle(noodleObject);
+            let whiteboardHeightRem = toRem($('#whiteboard').height() - 30);
+            let cssStyle;
+            if ( noodleObject.posTop > whiteboardHeightRem ) {
+                cssStyle = { top: whiteboardHeightRem + 'rem', left: noodleObject.posLeft + 'rem' };
+            } else {
+                cssStyle = { top: noodleObject.posTop + 'rem', left: noodleObject.posLeft + 'rem' };
+            }
             noodleSelector
                 .appendTo($('#whiteboard'))
-                .css({ top: noodleObject.posTop, left: noodleObject.posLeft })
+                .css(cssStyle)
                 .attr('data-id', noodleObject.noodleID)
                 .draggable({
                     scroll: false,
                     containment: 'parent',
+                    distance: 5,
                     start: function(event, ui) {
                         $(this).attr('data-dropped', false);
                         toggleClearMenu(true);
@@ -218,8 +222,10 @@ $(function() {
                         let isDropped = JSON.parse(ui.helper.attr('data-dropped'));
                         if(!isDropped) {
                             noodleObject.isOpened = ui.helper.attr('data-opened');
-                            noodleObject.posTop = ui.helper.position().top;
-                            noodleObject.posLeft = ui.helper.position().left;
+                            noodleObject.posTop = toRem(ui.helper.position().top);
+                            noodleObject.posLeft = toRem(ui.helper.position().left);
+                            ui.helper.css('top', noodleObject.posTop + 'rem');
+                            ui.helper.css('left', noodleObject.posLeft + 'rem');
                             saveNoodle(noodleObject);
                         }
                     }
@@ -248,7 +254,7 @@ $(function() {
         function resetNoodlePosition(noodleID) {
             let noodleHTML = $('.noodle[data-id="' + noodleID + '"]');
             let noodleObject = getNoodleObject(noodleID);
-            noodleHTML.css({ top: noodleObject.posTop, left: noodleObject.posLeft });
+            noodleHTML.css({ top: noodleObject.posTop + 'rem', left: noodleObject.posLeft + 'rem' });
         }
 
         // Noodle constructor
@@ -273,6 +279,11 @@ $(function() {
                 .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#039;")
                 .replace(/\//g, "&frasl;");
+        }
+
+        // To rem
+        function toRem(value) {
+            return Number((value / $('#whiteboard').width() * 100).toFixed(4));
         }
 
         // Toggle Clear Menu
@@ -362,8 +373,8 @@ $(function() {
                     description: 'Prints given attributes to the console.',
                     codeEx: 'console.log(&#039;example text&#039;); // example text<br>\nconsole.log(58); // 58',
                     isOpened: true,
-                    posTop: 358,
-                    posLeft: 671
+                    posTop: 3.2162,
+                    posLeft: 20.9163
                 },
                 {
                     noodleID: '',
@@ -371,8 +382,8 @@ $(function() {
                     description: 'Returns a radnom number from 0 to 1, not including 1',
                     codeEx: 'Math.random(); // 0.6148032315208345',
                     isOpened: true,
-                    posTop: 208,
-                    posLeft: 888
+                    posTop: 27.1437,
+                    posLeft: 22.5256
                 },
                 {
                     noodleID: '',
@@ -380,8 +391,8 @@ $(function() {
                     description: "Returns the lowest-valued number passed into it, or NaN if any parameter isn't a number and can't be converted into one.",
                     codeEx: 'Math.min(3, 5, 1, 7); // 1',
                     isOpened: false,
-                    posTop: 27,
-                    posLeft: 251
+                    posTop: 17.7574,
+                    posLeft: 49.4778
                 },
                 {
                     noodleID: '',
@@ -389,8 +400,8 @@ $(function() {
                     description: 'Evaluates JavaScript code represented as a string.',
                     codeEx: "console.log(eval('2 + 2')); // 4<br>\nconsole.log(eval(new String('2 + 2'))); // 2 + 2",
                     isOpened: false,
-                    posTop: 350,
-                    posLeft: 233
+                    posTop: 13.6664,
+                    posLeft: 9.6413
                 },
                 {
                     noodleID: '',
@@ -398,8 +409,8 @@ $(function() {
                     description: 'Determines whether the passed value is NaN and its type is Number.',
                     codeEx: "Number.isNaN('text'); // false<br>\nNumber.isNaN(8); // true",
                     isOpened: true,
-                    posTop: 42,
-                    posLeft: 681
+                    posTop: 29.0007,
+                    posLeft: 67.5671
                 },
                 {
                     noodleID: '',
@@ -407,8 +418,8 @@ $(function() {
                     description: 'Creates a new object, using an existing object as the prototype of the newly created object.',
                     codeEx: "const me = Object.create(person);",
                     isOpened: true,
-                    posTop: 206,
-                    posLeft: 336
+                    posTop: 6.2152,
+                    posLeft: 59.767
                 }
             ];
 
@@ -420,6 +431,7 @@ $(function() {
             }
 
         }
+
 
 
     } else {
