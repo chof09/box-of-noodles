@@ -281,27 +281,27 @@ body {
 #trashcan {
     position: absolute;
     bottom: 0px;
-    left: calc(50% - 31px);
+    left: calc(50% - 28px);
     background-image: url('../imgs/garbage-trash-undroppable.png');
     background-repeat: no-repeat;
     background-size: contain;
-    height: 70px;
-    width: 62px;
+    height: 63px;
+    width: 56px;
     cursor: pointer;
 }
 
 #trashcan.highlight {
     background-image: url('../imgs/garbage-trash-droppable-light.png');
-    height: 115px;
-    width: 103px;
-    left: calc(50% - 51px);
+    height: 96px;
+    width: 86px;
+    left: calc(50% - 43px);
 }
 
 #trashcan.clicked {
     background-image: url('../imgs/garbage-trash-droppable-norm.png');
-    height: 115px;
-    width: 103px;
-    left: calc(50% - 51px);
+    height: 96px;
+    width: 86px;
+    left: calc(50% - 43px);
 }
 
 #clear {

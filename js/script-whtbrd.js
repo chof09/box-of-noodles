@@ -229,31 +229,12 @@ $(function() {
         // Confirm delete
         function confirmDelete(noodleID) {
 
-            $( "#confirm-delete" ).dialog({
-                create: function(event, ui) {
-                    $('#confirm-delete').html('<p>Are you sure you want to delete this Noodle?</p>');
-                },
-                title: "Delete Noodle",
-                resizable: false,
-                draggable: false,
-                height: 150,
-                width: 400,
-                modal: true,
-                buttons: {
-                    'Cancel': function() {
-                        $( this ).dialog( "close" );
-                        resetNoodlePosition(noodleID);
-                    },
-                    'Delete': function() {
-                        $( this ).dialog( "close" );
-                        deleteNoodle(noodleID);
-                    }
-                },
-                beforeClose: function(event, ui) {
-                    resetNoodlePosition(noodleID);
-                },
-                closeText: ''
-            });
+            let selector = $('#confirm-delete');
+            let msg = 'Are you sure you want to delete this Noodle?';
+            let title = 'Delete Noodle';
+            let options = dialogOptions(selector, msg, title, noodleID);
+
+            $( "#confirm-delete" ).dialog(options);
 
         }
 
@@ -309,27 +290,13 @@ $(function() {
 
         // Confirm Clear
         function confirmClear() {
-            $( "#confirm-clear" ).dialog({
-                create: function(event, ui) {
-                    $('#confirm-clear').html('<p>Are you sure you want to delete all Noodles?</p>');
-                },
-                title: "Warning!",
-                resizable: false,
-                draggable: false,
-                height: 150,
-                width: 400,
-                modal: true,
-                buttons: {
-                    'Cancel': function() {
-                        $( this ).dialog( "close" );
-                    },
-                    'Delete': function() {
-                        $( this ).dialog( "close" );
-                        clearAll();
-                    }
-                },
-                closeText: ''
-            });
+
+            let selector = $('#confirm-clear');
+            let msg = 'Are you sure you want to delete all Noodles?';
+            let title = 'Warning!';
+            let options = dialogOptions(selector, msg, title);
+
+            $( "#confirm-clear" ).dialog(options);
         }
 
         // Clear All
@@ -338,6 +305,52 @@ $(function() {
             $(`.noodle`).remove();
         }
 
+        function dialogOptions(dialogSelector, dialogMsg, dialogTitle, noodleID=null) {
+
+            let options = {
+                create: function(event, ui) {
+                    dialogSelector.html('<p>' + dialogMsg + '</p>');
+                },
+                title: dialogTitle,
+                resizable: false,
+                draggable: false,
+                height: 150,
+                width: 400,
+                modal: true,
+                closeText: ''
+            }
+
+            if (noodleID) {
+                options.buttons = {
+                    'Cancel': function() {
+                        $( this ).dialog( "close" );
+                        resetNoodlePosition(noodleID);
+                    },
+                    'Delete': function() {
+                        $( this ).dialog( "close" );
+                        deleteNoodle(noodleID);
+                    }
+                };
+                options.beforeClose = function(event, ui) {
+                    resetNoodlePosition(noodleID);
+                };
+            } else {
+                options.buttons = {
+                    'Cancel': function() {
+                        $( this ).dialog( "close" );
+                    },
+                    'Delete': function() {
+                        $( this ).dialog( "close" );
+                        clearAll();
+                    }
+                };
+            }
+
+            return options;
+
+        }
+
+        // ----------------------------------------------
         // Load demo content
         function loadDemo() {
 
