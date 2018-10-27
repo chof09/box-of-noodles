@@ -13,8 +13,6 @@ $(function() {
                         + "<i class='fas fa-mobile-alt' style='font-size: 20px;'></i>&nbsp;&nbsp;"
                         + "<span style='color: #0e92a2'>Box of Noodles</span> doesn't work on mobile devices.</p>");
 
-
-
     } else {
 
     // Arrows fadeout
@@ -155,7 +153,11 @@ $(function() {
 
         // Clear Noodles
         $('body').on('click', '#clear-btn', function() {
-            confirmClear();
+            if(!localStorage.length || localStorage.length === 1) {
+                alert('Box of Noodles is already empty');
+            } else {
+                confirmClear();
+            }
         });
 
     // Load demo content
