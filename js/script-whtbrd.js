@@ -73,10 +73,12 @@ $(function() {
             let noodleObject = getNoodleObject(noodleID);
 
             if (opened === 'false') {
+                $(this).addClass('front');
                 $(this).find('.code').removeClass('hidden');
                 $(this).find('.noodle-description').removeClass('hidden');
                 $(this).attr('data-opened', 'true');
             } else {
+                $(this).removeClass('front');
                 $(this).find('.code').addClass('hidden');
                 $(this).find('.noodle-description').addClass('hidden');
                 $(this).attr('data-opened', 'false');
@@ -96,8 +98,6 @@ $(function() {
             if (theHeading.val()) {
 
                 let currentCounter = localStorage.getItem('counter') ? Number(localStorage.getItem('counter')) + 1 : 1;
-                console.log('prije kreiranja novog noodlea: ' + Number(localStorage.getItem('counter')));
-                console.log('nakon kreiranja novog noodlea: ' + currentCounter);
                 addNoodleForm.addClass('hidden');
                 let cleanCode = escapeHtml(theCode.val());
                 let preCode = cleanCode.replace(/\n/g, '<br>\n').replace(/ /g, '&nbsp;');

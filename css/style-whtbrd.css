@@ -142,20 +142,23 @@ body {
 .noodle-heading {
     font-weight: bold;
     font-size: 1.3em;
+    background-color: #ffffff;
 }
 
 .noodle-description {
     font-family: 'Average Sans', sans-serif;
     line-height: 1.1;
-    margin-top: 10px;
+    padding-top: 10px;
+    background-color: #ffffff;
 }
 
 .code {
-    margin: 15px 0;
+    padding-top: 15px;
     padding-left: 15px;
     font-size: 0.9em;
     border-left: 5px solid #0e92a2;
     max-width: 360px;
+    background-color: #ffffff;
 }
 
 .hidden {
@@ -164,6 +167,10 @@ body {
 
 .big-font {
     font-size: 18px;
+}
+
+.front {
+    z-index: 20;
 }
 
 .add-new-wrap {
