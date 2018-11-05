@@ -236,6 +236,7 @@ $(function() {
                     start: function(event, ui) {
                         $(this).attr('data-dropped', false);
                         toggleClearMenu(true);
+                        ui.helper.addClass('chrome-fix');  // Chrome fix / TEMPORARY
                     },
                     stop: function(event, ui) {
                         let isDropped = JSON.parse(ui.helper.attr('data-dropped'));
@@ -243,6 +244,7 @@ $(function() {
                             noodleObject.isOpened = ui.helper.attr('data-opened');
                             noodleObject.posTop = toRem(ui.helper.position().top);
                             noodleObject.posLeft = toRem(ui.helper.position().left);
+                            ui.helper.removeClass('chrome-fix');  // Chrome fix / TEMPORARY
                             ui.helper.css('top', noodleObject.posTop + 'rem');
                             ui.helper.css('left', noodleObject.posLeft + 'rem');
                             saveNoodle(noodleObject);

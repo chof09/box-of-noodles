@@ -135,6 +135,15 @@ body {
     color: #0e92a2;
 }
 
+/* Chrome fix */
+.chrome-fix {
+    font-size: 18px;
+}
+.noodle.chrome-fix > .noodle-heading {
+    color: #0e92a2;
+}
+/*  / Chrome fix  */
+
 .ui-draggable-dragging {
     cursor: grabbing;
 }
@@ -149,11 +158,11 @@ body {
     font-family: 'Average Sans', sans-serif;
     line-height: 1.1;
     padding-top: 10px;
+    padding-bottom: 15px; 
     background-color: #ffffff;
 }
 
 .code {
-    padding-top: 15px;
     padding-left: 15px;
     font-size: 0.9em;
     border-left: 5px solid #0e92a2;
