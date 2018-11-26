@@ -135,6 +135,11 @@ body {
     color: #0e92a2;
 }
 
+.noodle.editable {
+    outline: 2px dashed #0e92a2;
+    outline-offset: 10px;
+}
+
 /* Chrome fix */
 .chrome-fix {
     font-size: 18px;
@@ -298,6 +303,7 @@ body {
 }
 
 #trashcan {
+    z-index: 501;
     position: absolute;
     bottom: 0px;
     left: calc(50% - 28px);

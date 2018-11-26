@@ -45,10 +45,30 @@ $(function() {
         });
 
     // Body on Click
-        $('body, html').click(function() {
+        $('body').click(function() {
             addNoodleForm.addClass('hidden');
             toggleNew.removeClass('active');
             toggleClearMenu(true);
+
+            for (i = 0; i < $('.noodle').length; i++) {
+                let currentNoodle = $($('.noodle')[i]);  // get jQuery object from DOM element
+                let noodleID = currentNoodle.attr('data-id');
+                let noodleObject = getNoodleObject(noodleID);
+
+                if(currentNoodle.attr('contenteditable') === 'true') {
+
+                    noodleObject.heading = currentNoodle.find('.noodle-heading').text();
+                    noodleObject.description = currentNoodle.find('.noodle-description').text();
+                    noodleObject.codeEx = currentNoodle.find('.code span').text();
+                    saveNoodle(noodleObject);
+
+                    currentNoodle.css('cursor', 'grab');
+                    currentNoodle.removeClass('editable');
+                    currentNoodle.draggable({ disabled: false });
+                    currentNoodle.attr('contenteditable', 'false');
+                }
+            }
+
         });
 
     // Noodle on hover
@@ -66,26 +86,27 @@ $(function() {
         }, '.noodle');
 
     // Noodle on click
-        whiteboard.on('click', '.noodle', function() {
+        whiteboard.on('click', '.noodle', function(event) {
 
-            let noodleID = $(this).attr('data-id');
-            let opened = $(this).attr('data-opened');
-            let noodleObject = getNoodleObject(noodleID);
+            event.stopPropagation();
+            let currentNoodle = $(this);
 
-            if (opened === 'false') {
-                $(this).addClass('front');
-                $(this).find('.code').removeClass('hidden');
-                $(this).find('.noodle-description').removeClass('hidden');
-                $(this).attr('data-opened', 'true');
-            } else {
-                $(this).removeClass('front');
-                $(this).find('.code').addClass('hidden');
-                $(this).find('.noodle-description').addClass('hidden');
-                $(this).attr('data-opened', 'false');
+            if (event.ctrlKey) {    // ctrl pressed
+
+                // Make editable
+                $(this).css('cursor', 'auto');
+                $(this).addClass('editable');
+                $(this).draggable({ disabled: true });
+                $(this).attr('contenteditable', 'true');
+                $(this).find('.noodle-heading').focus();
+
+            } else {            // ctrl not pressed
+
+                if($(this).attr('contenteditable') === 'false') {
+                    toggleOpen(currentNoodle);
+                }
+
             }
-
-            noodleObject.isOpened = $(this).attr('data-opened');
-            saveNoodle(noodleObject);
 
         });
 
@@ -135,7 +156,7 @@ $(function() {
 
     // Clear All
 
-        // Show / hide Clear menu
+        // Show / hide Clear menu (Trashcan on hover)
         $('body').on({
             mouseenter: function() {
                 $(this).addClass('highlight');
@@ -170,7 +191,7 @@ $(function() {
     // Functions
     // ########################################################
 
-        // Set Noodles
+        // Render All Noodles
         function renderAllNoodles() {
 
             if (localStorage.length) {
@@ -202,11 +223,11 @@ $(function() {
             let isHiddenClass = JSON.parse(noodleObject.isOpened) ? '' : 'hidden';
             let isBigFontClass = JSON.parse(noodleObject.isOpened) ? 'big-font' : '';
             let noodleSelector = $(`
-                    <div class="noodle ${ isBigFontClass }" data-opened="${ noodleObject.isOpened }">
-                        <span class="noodle-heading">${ noodleObject.heading }</span>
-                        <p class="noodle-description ${ isHiddenClass }">${ noodleObject.description }</p>
+                    <div class="noodle ${ isBigFontClass }" data-opened="${ noodleObject.isOpened }" contenteditable="false">
+                        <span tabindex="-1" class="noodle-heading">${ noodleObject.heading }</span>
+                        <p tabindex="-1" class="noodle-description ${ isHiddenClass }">${ noodleObject.description }</p>
                         <div class="code ${ isHiddenClass }">
-                            <span>
+                            <span tabindex="-1">
                                 ${ noodleObject.codeEx }
                             </span>
                         </div>
@@ -232,7 +253,7 @@ $(function() {
                 .draggable({
                     scroll: false,
                     containment: 'parent',
-                    distance: 5,
+                    distance: 3,
                     start: function(event, ui) {
                         $(this).attr('data-dropped', false);
                         toggleClearMenu(true);
@@ -251,6 +272,37 @@ $(function() {
                         }
                     }
                 });
+
+                if(noodleSelector.attr('data-opened') === 'true') {
+                    noodleSelector.addClass('front');
+                }
+
+        }
+
+        // Toogle open
+        function toggleOpen(currentNoodle) {
+
+            let noodleID = currentNoodle.attr('data-id');
+            let opened = currentNoodle.attr('data-opened');
+            let noodleObject = getNoodleObject(noodleID);
+
+            if (opened === 'false') {
+                currentNoodle.addClass('front');
+                currentNoodle.addClass('big-font');
+                currentNoodle.find('.code').removeClass('hidden');
+                currentNoodle.find('.noodle-description').removeClass('hidden');
+                currentNoodle.attr('data-opened', 'true');
+            } else {
+                currentNoodle.removeClass('front');
+                currentNoodle.removeClass('big-font');
+                currentNoodle.find('.code').addClass('hidden');
+                currentNoodle.find('.noodle-description').addClass('hidden');
+                currentNoodle.attr('data-opened', 'false');
+            }
+
+            noodleObject.isOpened = currentNoodle.attr('data-opened');
+            saveNoodle(noodleObject);
+
         }
 
         // Confirm delete
