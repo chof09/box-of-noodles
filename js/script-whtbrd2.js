@@ -231,12 +231,24 @@ $(function() {
             let isHiddenClass = JSON.parse(noodleObject.isOpened) ? '' : 'hidden';
             let isBigFontClass = JSON.parse(noodleObject.isOpened) ? 'big-font' : '';
             let noodleSelector = $(`
-                    <div class="noodle ${ isBigFontClass }" data-opened="${ noodleObject.isOpened }">
-                        <p tabindex="0" contenteditable="false" class="noodle-heading">${ noodleObject.heading }</p><br />
-                        <p tabindex="0" contenteditable="false" class="noodle-description ${ isHiddenClass }">${ noodleObject.description }</p><br />
-                        <p tabindex="0" contenteditable="false" class="code ${ isHiddenClass }">${noodleObject.codeEx}</p>
+                <div class="noodle ${ isBigFontClass }" data-opened="${ noodleObject.isOpened }">
+                    <div class="inner-bg">
+                        <p tabindex="0" contenteditable="false" class="noodle-heading">
+                            ${ noodleObject.heading }
+                        </p>
+                    </div><br />
+                    <div class="inner-bg">
+                        <p tabindex="0" contenteditable="false" class="noodle-description ${ isHiddenClass }">
+                            ${ noodleObject.description }
+                        </p>
+                    </div><br />
+                    <div class="inner-bg">
+                        <p tabindex="0" contenteditable="false" class="code ${ isHiddenClass }">
+                            ${noodleObject.codeEx}
+                        </p>
                     </div>
-                    `);
+                </div>
+            `);
             return noodleSelector;
         }
 
