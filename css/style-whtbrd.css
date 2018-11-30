@@ -131,11 +131,11 @@ body {
     z-index: 500;
 }
 
-.noodle:hover > .noodle-heading {
+.noodle:hover .noodle-heading {
     color: #0e92a2;
 }
 
-.noodle.editable:hover > .noodle-heading {
+.noodle.editable:hover .noodle-heading {
     color: #121212;
 }
 
@@ -164,7 +164,7 @@ body {
 .chrome-fix {
     font-size: 18px;
 }
-.noodle.chrome-fix > .noodle-heading {
+.noodle.chrome-fix .noodle-heading {
     color: #0e92a2;
 }
 /*  / Chrome fix  */

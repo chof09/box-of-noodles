@@ -57,18 +57,12 @@ $(function() {
         }, '.noodle');
 
     // Noodle on click
-        //Inner click
-        $('.noodle').on('click', '.noodle-heading, .noodle-description, .code', function() {
-            $(this).focus();
-            setEndOfContenteditable($(this));
-        });
 
-        // Noodle click
-        whiteboard.on('click', '.noodle', function(event) {
+        whiteboard.on('click', '.noodle-heading, .noodle-description, .code', function(event) {
 
             event.stopPropagation();
             toggleClearMenu(true);
-            let currentNoodle = $(this);
+            let currentNoodle = $(this).parents('.noodle');
 
             if (!addNoodleForm.hasClass('hidden')) {  // Hide Add New Form if visible
 
@@ -79,17 +73,17 @@ $(function() {
                 saveEditedNoodles();  // only one Noodle editable at a time
 
                 // Make editable
-                $(this).css('cursor', 'auto');
-                $(this).addClass('editable big-font');
-                $(this).draggable({ disabled: true });
-                $(this).find('.noodle-heading, .noodle-description, .code').attr('contenteditable', 'true');
-                // $(this).find('.noodle-heading').focus();
-                // setEndOfContenteditable($(this).find('.noodle-heading'));
+                currentNoodle.css('cursor', 'auto');
+                currentNoodle.addClass('editable big-font');
+                currentNoodle.draggable({ disabled: true });
+                currentNoodle.find('.noodle-heading, .noodle-description, .code').attr('contenteditable', 'true');
+                $(this).focus();
+                setEndOfContenteditable($(this));
 
                 // Tab inside Noodle (next element & cycle inside)
-                $(this).find('.noodle-heading, .noodle-description, .code').addClass('tabMe');
+                currentNoodle.find('.noodle-heading, .noodle-description, .code').addClass('tabMe');
 
-                $(this).on('keydown', '.tabMe', function(event) {
+                currentNoodle.on('keydown', '.tabMe', function(event) {
                     if(event.which === 9) {
                         let index = $('.tabMe').index(this);
                         let next = $('.tabMe').eq(index+1);
@@ -106,7 +100,7 @@ $(function() {
 
             } else {            // ctrl not pressed
 
-                if($(this).find('.noodle-heading, .noodle-description, .code').attr('contenteditable') === 'false') {
+                if(currentNoodle.find('.noodle-heading, .noodle-description, .code').attr('contenteditable') === 'false') {
                     toggleOpen(currentNoodle);
                 }
 
@@ -117,9 +111,13 @@ $(function() {
     // Toggle "Add New" form
         toggleNew.click(function(e) {
             e.stopPropagation();
-            toggleNew.toggleClass('active');
-            addNoodleForm.toggleClass('hidden');
-            $( '#add-heading' ).focus();
+            if($('.noodle').hasClass('editable')) {
+                saveEditedNoodles();
+            } else {
+                toggleNew.toggleClass('active');
+                addNoodleForm.toggleClass('hidden');
+                $( '#add-heading' ).focus();
+            }
         });
 
         addNoodleForm.click(function(e) {
@@ -183,8 +181,13 @@ $(function() {
 
         $('body').on('click', '#trashcan', function(e) {
             e.stopPropagation();
-            let isClicked = JSON.parse($(this).attr('data-menu'));
-            toggleClearMenu(isClicked);
+            if($('.noodle').hasClass('editable')) {
+                saveEditedNoodles();
+            } else {
+                let isClicked = JSON.parse($(this).attr('data-menu'));
+                toggleClearMenu(isClicked);
+            }
+                
         });
 
         // Clear Noodles
@@ -198,8 +201,13 @@ $(function() {
 
     // Load demo content
         $('#load-demo-btn').click(function(e) {
-            e.preventDefault();
-            loadDemo();
+            e.stopPropagation();
+            if($('.noodle').hasClass('editable')) {
+                saveEditedNoodles();
+            } else {
+                e.preventDefault();
+                loadDemo();
+            }
         });
 
 
