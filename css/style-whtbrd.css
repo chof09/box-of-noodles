@@ -124,7 +124,7 @@ body {
     color: #121212;
     /*min-width: 150px;*/
     max-width: 360px;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .noodle:hover {
@@ -135,9 +135,26 @@ body {
     color: #0e92a2;
 }
 
+.noodle.editable:hover > .noodle-heading {
+    color: #121212;
+}
+
 .noodle.editable {
     outline: 2px dashed #0e92a2;
     outline-offset: 10px;
+}
+
+.noodle.editable .noodle-heading,
+.noodle.editable .noodle-description,
+.noodle.editable .code {
+    outline: 1px solid #999999;
+    padding-right: 1px;
+}
+
+.noodle.editable .noodle-heading:focus,
+.noodle.editable .noodle-description:focus,
+.noodle.editable .code:focus {
+    outline: 2px solid #ff5143;
 }
 
 /* Chrome fix */
@@ -156,15 +173,23 @@ body {
 .noodle-heading {
     font-weight: bold;
     font-size: 1.3em;
+    max-width: 360px;
     background-color: #ffffff;
+    display: inline-block;
+    overflow: auto;
+    overflow-x: hidden;
 }
 
 .noodle-description {
     font-family: 'Average Sans', sans-serif;
     line-height: 1.1;
     padding-top: 10px;
-    padding-bottom: 15px; 
+    padding-bottom: 15px;
+    max-width: 360px;
     background-color: #ffffff;
+    display: inline-block;
+    overflow: auto;
+    overflow-x: hidden;
 }
 
 .code {
@@ -173,6 +198,9 @@ body {
     border-left: 5px solid #0e92a2;
     max-width: 360px;
     background-color: #ffffff;
+    display: inline-block;
+    overflow: auto;
+    overflow-x: hidden;
 }
 
 .hidden {
@@ -263,6 +291,7 @@ body {
     box-sizing: border-box;
     border: none;
     border-radius: 5px;
+    resize: none;
     -webkit-box-shadow: inset 0px 0px 2px 0px #000000;
     -moz-box-shadow: inset 0px 0px 2px 0px #000000;
     box-shadow: inset 0px 0px 2px 0px #000000;
