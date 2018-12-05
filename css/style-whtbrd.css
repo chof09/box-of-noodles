@@ -207,14 +207,13 @@ body {
 .inner-bg {
     background-color: #ffffff;
     display:inline-block;
-
 }
 
-.inner-bg:first-child {
+.details .inner-bg:first-child {
     padding-bottom: 5px;
 }
 
-.inner-bg:last-child {
+.details .inner-bg:last-child {
     padding-top: 15px;
 }
 
@@ -249,6 +248,11 @@ body {
 #show-add-form:hover {
     background-color: #0e92a2;
     color: #ffffff;
+}
+
+#show-add-form:active,
+#show-add-form:focus {
+    outline: none;
 }
 
 #show-add-form::-moz-focus-inner {
@@ -351,23 +355,26 @@ body {
     position: absolute;
     bottom: 0px;
     left: calc(50% - 28px);
-    background-image: url('../imgs/garbage-trash-undroppable.png');
+    background-image: url('../imgs/garbage-trash.png');
+    background-position: left bottom;
     background-repeat: no-repeat;
-    background-size: contain;
+    background-size: cover;
     height: 63px;
     width: 56px;
     cursor: pointer;
 }
 
 #trashcan.highlight {
-    background-image: url('../imgs/garbage-trash-droppable-light.png');
+    background-image: url('../imgs/garbage-trash.png');
+    background-position: left center;
     height: 96px;
     width: 86px;
     left: calc(50% - 43px);
 }
 
 #trashcan.clicked {
-    background-image: url('../imgs/garbage-trash-droppable-norm.png');
+    background-image: url('../imgs/garbage-trash.png');
+    background-position: left top;
     height: 96px;
     width: 86px;
     left: calc(50% - 43px);

@@ -33,24 +33,16 @@ $(function() {
         let toggleNew = $( '#show-add-form' );
         let addNoodleForm = $( '#add-noodle-form' );
 
-    // Toggle "Add New" form
-        toggleNew.click(function(e) {
-            e.stopPropagation();
-            toggleNew.toggleClass('active');
-            addNoodleForm.toggleClass('hidden');
-        });
-
-        addNoodleForm.click(function(e) {
-            e.stopPropagation();
-        });
-
     // Body on Click
-        $('body').click(function() {
-            addNoodleForm.addClass('hidden');
-            toggleNew.removeClass('active');
-            toggleClearMenu(true);
+        $('body').on('click', function() {
 
-            saveEditedNoodles();
+            if($('body').attr('data-disabled') === 'true') {
+                $('body').attr('data-disabled', 'false');
+            } else {
+                hideAddNew();
+                toggleClearMenu(true);
+                saveEditedNoodles();
+            }
 
         });
 
@@ -62,34 +54,39 @@ $(function() {
                 }
             },
             mouseleave: function() {
-                if ($(this).attr('data-opened') === 'false') {
+                if ($(this).attr('data-opened') === 'false' && !$(this).hasClass('editable')) {
                     $(this).removeClass('big-font');
                 }
             }
         }, '.noodle');
 
     // Noodle on click
-        whiteboard.on('click', '.noodle', function(event) {
+        whiteboard.on('click', '.noodle-heading, .noodle-description, .code', function(event) {
 
             event.stopPropagation();
-            let currentNoodle = $(this);
+            toggleClearMenu(true);
+            let currentNoodle = $(this).parents('.noodle');
 
-            if (event.ctrlKey) {    // ctrl pressed
+            if (!addNoodleForm.hasClass('hidden')) {  // Hide Add New Form if visible
+
+                hideAddNew();
+
+            } else if (event.ctrlKey) {    // ctrl pressed
 
                 saveEditedNoodles();  // only one Noodle editable at a time
 
                 // Make editable
-                $(this).css('cursor', 'auto');
-                $(this).addClass('editable');
-                $(this).draggable({ disabled: true });
-                $(this).find('.noodle-heading, .noodle-description, .code span').attr('contenteditable', 'true');
-                $(this).find('.noodle-heading').focus();
-                setEndOfContenteditable($(this).find('.noodle-heading'));
+                currentNoodle.css('cursor', 'auto');
+                currentNoodle.addClass('editable big-font');
+                currentNoodle.draggable({ disabled: true });
+                currentNoodle.find('.noodle-heading, .noodle-description, .code').attr('contenteditable', 'true');
+                $(this).focus();
+                setEndOfContenteditable($(this));
 
                 // Tab inside Noodle (next element & cycle inside)
-                $(this).find('.noodle-heading, .noodle-description, .code span').addClass('tabMe');
+                currentNoodle.find('.noodle-heading, .noodle-description, .code').addClass('tabMe');
 
-                $(this).on('keydown', '.tabMe', function(event) {
+                currentNoodle.on('keydown', '.tabMe', function(event) {
                     if(event.which === 9) {
                         let index = $('.tabMe').index(this);
                         let next = $('.tabMe').eq(index+1);
@@ -106,12 +103,39 @@ $(function() {
 
             } else {            // ctrl not pressed
 
-                if($(this).find('.noodle-heading, .noodle-description, .code span').attr('contenteditable') === 'false') {
+                if(currentNoodle.find('.noodle-heading, .noodle-description, .code').attr('contenteditable') === 'false') {
                     toggleOpen(currentNoodle);
                 }
 
             }
 
+        });
+
+    // Mousedown on editable (emulate Firefox text selection handling [keep target if mouseup is outside editable element])
+        whiteboard.on('mousedown', '.editable .noodle-heading, .editable .noodle-description, .editable .code',
+            function(event) {
+                event.stopPropagation();
+                $('body').attr('data-disabled', 'true');
+                $(this).on('mouseup', function(e) {
+                    e.stopPropagation();
+                    $('body').attr('data-disabled', 'false');
+                });
+        });
+
+    // Toggle "Add New" form
+        toggleNew.click(function(e) {
+            e.stopPropagation();
+            if($('.noodle').hasClass('editable')) {
+                saveEditedNoodles();
+            } else {
+                toggleNew.toggleClass('active');
+                addNoodleForm.toggleClass('hidden');
+                $( '#add-heading' ).focus();
+            }
+        });
+
+        addNoodleForm.click(function(e) {
+            e.stopPropagation();
         });
 
     // Create new Noodle
@@ -124,12 +148,11 @@ $(function() {
 
                 let currentCounter = localStorage.getItem('counter') ? Number(localStorage.getItem('counter')) + 1 : 1;
                 addNoodleForm.addClass('hidden');
-                let cleanCode = escapeHtml(theCode.val());
-                let preCode = cleanCode.replace(/\n/g, '<br>\n').replace(/ /g, '&nbsp;');
-                let cleanHeading = escapeHtml(theHeading.val());
-                let cleanDescription = escapeHtml(theDescription.val());
+                let cleanCode = cleanInput(theCode.val());
+                let cleanHeading = cleanInput(theHeading.val());
+                let cleanDescription = cleanInput(theDescription.val());
 
-                let noodleObject = new Noodle(currentCounter, cleanHeading, cleanDescription, preCode, false);
+                let noodleObject = new Noodle(currentCounter, cleanHeading, cleanDescription, cleanCode, false);
 
                 saveNoodle(noodleObject);
                 renderNoodle(noodleObject);
@@ -172,8 +195,13 @@ $(function() {
 
         $('body').on('click', '#trashcan', function(e) {
             e.stopPropagation();
-            let isClicked = JSON.parse($(this).attr('data-menu'));
-            toggleClearMenu(isClicked);
+            if($('.noodle').hasClass('editable')) {
+                saveEditedNoodles();
+            } else {
+                let isClicked = JSON.parse($(this).attr('data-menu'));
+                toggleClearMenu(isClicked);
+            }
+                
         });
 
         // Clear Noodles
@@ -187,8 +215,13 @@ $(function() {
 
     // Load demo content
         $('#load-demo-btn').click(function(e) {
-            e.preventDefault();
-            loadDemo();
+            e.stopPropagation();
+            if($('.noodle').hasClass('editable')) {
+                saveEditedNoodles();
+            } else {
+                e.preventDefault();
+                loadDemo();
+            }
         });
 
 
@@ -227,16 +260,26 @@ $(function() {
             let isHiddenClass = JSON.parse(noodleObject.isOpened) ? '' : 'hidden';
             let isBigFontClass = JSON.parse(noodleObject.isOpened) ? 'big-font' : '';
             let noodleSelector = $(`
-                    <div class="noodle ${ isBigFontClass }" data-opened="${ noodleObject.isOpened }">
-                        <span tabindex="0" contenteditable="false" class="noodle-heading">${ noodleObject.heading }</span>
-                        <p tabindex="0" contenteditable="false" class="noodle-description ${ isHiddenClass }">${ noodleObject.description }</p>
-                        <div class="code ${ isHiddenClass }">
-                            <span tabindex="0" contenteditable="false">
-                                ${ noodleObject.codeEx }
-                            </span>
+                <div class="noodle ${ isBigFontClass }" data-opened="${ noodleObject.isOpened }">
+                    <div class="inner-bg">
+                        <p tabindex="0" contenteditable="false" class="noodle-heading">
+                            ${ noodleObject.heading }
+                        </p>
+                    </div>
+                    <div class="details ${ isHiddenClass }">
+                        <div class="inner-bg">
+                            <p tabindex="0" contenteditable="false" class="noodle-description">
+                                ${ noodleObject.description }
+                            </p>
+                        </div><br />
+                        <div class="inner-bg">
+                            <p tabindex="0" contenteditable="false" class="code">
+                                ${noodleObject.codeEx}
+                            </p>
                         </div>
                     </div>
-                    `);
+                </div>
+            `);
             return noodleSelector;
         }
 
@@ -245,11 +288,13 @@ $(function() {
             let noodleSelector = generateNoodle(noodleObject);
             let whiteboardHeightRem = toRem($('#whiteboard').height() - 30);
             let cssPosition;
+            // If position out-of-screen (bottom), move up
             if ( noodleObject.posTop > whiteboardHeightRem ) {
                 cssPosition = { top: whiteboardHeightRem + 'rem', left: noodleObject.posLeft + 'rem' };
             } else {
                 cssPosition = { top: noodleObject.posTop + 'rem', left: noodleObject.posLeft + 'rem' };
             }
+            // Append Noodle
             noodleSelector
                 .appendTo($('#whiteboard'))
                 .css(cssPosition)
@@ -261,6 +306,7 @@ $(function() {
                     start: function(event, ui) {
                         $(this).attr('data-dropped', false);
                         toggleClearMenu(true);
+                        $('#show-add-form, #load-demo').css('pointer-events', 'none');
                         ui.helper.addClass('chrome-fix');  // Chrome fix / TEMPORARY
                     },
                     stop: function(event, ui) {
@@ -269,6 +315,7 @@ $(function() {
                             noodleObject.isOpened = ui.helper.attr('data-opened');
                             noodleObject.posTop = toRem(ui.helper.position().top);
                             noodleObject.posLeft = toRem(ui.helper.position().left);
+                            $('#show-add-form, #load-demo').css('pointer-events', 'auto');
                             ui.helper.removeClass('chrome-fix');  // Chrome fix / TEMPORARY
                             ui.helper.css('top', noodleObject.posTop + 'rem');
                             ui.helper.css('left', noodleObject.posLeft + 'rem');
@@ -293,14 +340,12 @@ $(function() {
             if (opened === 'false') {
                 currentNoodle.addClass('front');
                 currentNoodle.addClass('big-font');
-                currentNoodle.find('.code').removeClass('hidden');
-                currentNoodle.find('.noodle-description').removeClass('hidden');
+                currentNoodle.find('.details').removeClass('hidden');
                 currentNoodle.attr('data-opened', 'true');
             } else {
                 currentNoodle.removeClass('front');
                 currentNoodle.removeClass('big-font');
-                currentNoodle.find('.code').addClass('hidden');
-                currentNoodle.find('.noodle-description').addClass('hidden');
+                currentNoodle.find('.details').addClass('hidden');
                 currentNoodle.attr('data-opened', 'false');
             }
 
@@ -331,7 +376,7 @@ $(function() {
         function reloadNoodle(noodleObject, currentNoodle) {
             whiteboard.find(`.noodle[data-id="${ noodleObject.noodleID }"]`).remove();
             renderNoodle(noodleObject);
-            currentNoodle.find('.noodle-heading, .noodle-description, .code span').removeClass('tabMe');
+            currentNoodle.find('.noodle-heading, .noodle-description, .code').removeClass('tabMe');
         }
 
         // Save edited Noodles
@@ -341,18 +386,24 @@ $(function() {
                 let noodleID = currentNoodle.attr('data-id');
                 let noodleObject = getNoodleObject(noodleID);
 
-                if(currentNoodle.find('.noodle-heading, .noodle-description, .code span').attr('contenteditable') === 'true') {
+                if(currentNoodle.find('.noodle-heading, .noodle-description, .code').attr('contenteditable') === 'true') {
 
                     noodleObject.heading = currentNoodle.find('.noodle-heading').text();
                     noodleObject.description = currentNoodle.find('.noodle-description').text();
-                    noodleObject.codeEx = currentNoodle.find('.code span').text();
+                    noodleObject.codeEx = currentNoodle.find('.code').text();
+
+                    // Clean inputs
+                    noodleObject.heading = cleanInput(noodleObject.heading);
+                    noodleObject.description = cleanInput(noodleObject.description);
+                    noodleObject.codeEx = cleanInput(noodleObject.codeEx);
+
                     saveNoodle(noodleObject);
                     reloadNoodle(noodleObject, currentNoodle);
 
                     currentNoodle.css('cursor', 'grab');
-                    currentNoodle.removeClass('editable');
+                    currentNoodle.removeClass('editable big-font');
                     currentNoodle.draggable({ disabled: false });
-                    currentNoodle.find('.noodle-heading, .noodle-description, .code span').attr('contenteditable', 'false');
+                    currentNoodle.find('.noodle-heading, .noodle-description, .code').attr('contenteditable', 'false');
                 }
             }
         }
@@ -362,6 +413,8 @@ $(function() {
             let noodleHTML = $('.noodle[data-id="' + noodleID + '"]');
             let noodleObject = getNoodleObject(noodleID);
             noodleHTML.css({ top: noodleObject.posTop + 'rem', left: noodleObject.posLeft + 'rem' });
+            $('#show-add-form, #load-demo').css('pointer-events', 'auto');
+            noodleHTML.removeClass('chrome-fix');
         }
 
         // Move caret to end of editable element
@@ -407,12 +460,24 @@ $(function() {
                 .replace(/>/g, "&gt;")
                 .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#039;")
-                .replace(/\//g, "&frasl;");
+                .replace(/\//g, "&#47;");
+        }
+
+        // Input cleanup
+        function cleanInput(input) {
+            return escapeHtml(input)
+                .trim().replace(/\n/g, '<br>\n');
         }
 
         // To rem
         function toRem(value) {
             return Number((value / $('#whiteboard').width() * 100).toFixed(4));
+        }
+
+        // Hide add new menu & add change btn style
+        function hideAddNew() {
+            addNoodleForm.addClass('hidden');
+            toggleNew.removeClass('active');
         }
 
         // Toggle Clear Menu
