@@ -23,8 +23,14 @@ $(function() {
             }, 1000);
         }
 
-    // Render all Noodles
-        renderAllNoodles();
+    // Reformat old Noodles  /  Render Formated Noodles
+        if(!localStorage.getItem('reformated')) {
+            // Reformat old Noodles
+            reformatNoodles();
+        } else {
+            // Render all Noodles
+            renderAllNoodles();
+        }
 
     // Set variables
         const whiteboard = $( '#whiteboard' );
@@ -61,11 +67,11 @@ $(function() {
         }, '.noodle');
 
     // Noodle on click
-        whiteboard.on('click', '.noodle-heading, .noodle-description, .code', function(event) {
+        whiteboard.on('click', '.noodle', function(event) {
 
             event.stopPropagation();
             toggleClearMenu(true);
-            let currentNoodle = $(this).parents('.noodle');
+            let currentTarget = $( event.target );
 
             if (!addNoodleForm.hasClass('hidden')) {  // Hide Add New Form if visible
 
@@ -76,17 +82,24 @@ $(function() {
                 saveEditedNoodles();  // only one Noodle editable at a time
 
                 // Make editable
-                currentNoodle.css('cursor', 'auto');
-                currentNoodle.addClass('editable big-font');
-                currentNoodle.draggable({ disabled: true });
-                currentNoodle.find('.noodle-heading, .noodle-description, .code').attr('contenteditable', 'true');
-                $(this).focus();
-                setEndOfContenteditable($(this));
+                $(this).css('cursor', 'auto');
+                $(this).addClass('editable big-font');
+                $(this).draggable({ disabled: true });
+                $(this).find('.noodle-heading, .noodle-description, .code').attr('contenteditable', 'true');
+                if( currentTarget.hasClass('noodle-heading')
+                    || currentTarget.hasClass('noodle-description')
+                    || currentTarget.hasClass('code') ) {
+                        currentTarget.focus();
+                        setEndOfContenteditable(currentTarget);
+                    } else {
+                        $(this).find('.noodle-heading').focus();
+                        setEndOfContenteditable($(this).find('.noodle-heading'));
+                    }
 
                 // Tab inside Noodle (next element & cycle inside)
-                currentNoodle.find('.noodle-heading, .noodle-description, .code').addClass('tabMe');
+                $(this).find('.noodle-heading, .noodle-description, .code').addClass('tabMe');
 
-                currentNoodle.on('keydown', '.tabMe', function(event) {
+                $(this).on('keydown', '.tabMe', function(event) {
                     if(event.which === 9) {
                         let index = $('.tabMe').index(this);
                         let next = $('.tabMe').eq(index+1);
@@ -103,8 +116,8 @@ $(function() {
 
             } else {            // ctrl not pressed
 
-                if(currentNoodle.find('.noodle-heading, .noodle-description, .code').attr('contenteditable') === 'false') {
-                    toggleOpen(currentNoodle);
+                if($(this).find('.noodle-heading, .noodle-description, .code').attr('contenteditable') === 'false') {
+                    toggleOpen($(this));
                 }
 
             }
@@ -160,6 +173,9 @@ $(function() {
 
                 addNoodleForm.find(':input').val('');
                 toggleNew.removeClass('active');
+
+                // Set reformated to true (so that reformatNoodles() doesn't happen on every reload after ClearAll)
+                localStorage.setItem('reformated', 'true');
 
             } else {
                 alert('Noodles must have headings!');
@@ -221,6 +237,8 @@ $(function() {
             } else {
                 e.preventDefault();
                 loadDemo();
+                // Set reformated to true (so that reformatNoodles() doesn't happen on every reload after ClearAll)
+                localStorage.setItem('reformated', 'true');
             }
         });
 
@@ -273,9 +291,7 @@ $(function() {
                             </p>
                         </div><br />
                         <div class="inner-bg">
-                            <p tabindex="0" contenteditable="false" class="code">
-                                ${noodleObject.codeEx}
-                            </p>
+                            <p tabindex="0" contenteditable="false" class="code">${noodleObject.codeEx}</p>
                         </div>
                     </div>
                 </div>
@@ -388,14 +404,15 @@ $(function() {
 
                 if(currentNoodle.find('.noodle-heading, .noodle-description, .code').attr('contenteditable') === 'true') {
 
-                    noodleObject.heading = currentNoodle.find('.noodle-heading').text();
-                    noodleObject.description = currentNoodle.find('.noodle-description').text();
-                    noodleObject.codeEx = currentNoodle.find('.code').text();
+                    noodleObject.heading = currentNoodle.find('.noodle-heading').text().trim();
+                    noodleObject.description = currentNoodle.find('.noodle-description').text().trim();
+                    noodleObject.codeEx = currentNoodle.find('.code').text().trim(); // .replace(/\n/g, '<br>');
 
                     // Clean inputs
-                    noodleObject.heading = cleanInput(noodleObject.heading);
-                    noodleObject.description = cleanInput(noodleObject.description);
-                    noodleObject.codeEx = cleanInput(noodleObject.codeEx);
+                    noodleObject.heading = escapeHtml(noodleObject.heading);
+                    noodleObject.description = escapeHtml(noodleObject.description);
+                    noodleObject.codeEx = escapeHtml(noodleObject.codeEx);
+                    // noodleObject.codeEx = noodleObject.codeEx.replace(/<br>/g, '\n');
 
                     saveNoodle(noodleObject);
                     reloadNoodle(noodleObject, currentNoodle);
@@ -626,6 +643,33 @@ $(function() {
             }
 
         }
+
+        // --------------------------------------
+        // Reformat Noodles
+        function reformatNoodles() {
+
+            if (localStorage.length) {
+                for(let key in localStorage) {
+                    // Check if key is a number (there is also a 'counter' key)
+                    if(Number(key)) {
+                        let noodleObject = getNoodleObject(key);
+                        // Clean inputs
+                        // noodleObject.heading = cleanInput(noodleObject.heading);
+                        // noodleObject.description = cleanInput(noodleObject.description);
+                        noodleObject.codeEx = noodleObject.codeEx.replace(/\&nbsp\;/g, " ");
+                        noodleObject.codeEx = noodleObject.codeEx.replace(/<br>/g, "");
+                        noodleObject.codeEx = noodleObject.codeEx.trim();
+                        // noodleObject.codeEx = cleanInput(noodleObject.codeEx);
+                        saveNoodle(noodleObject);
+                        renderNoodle(noodleObject);
+                    }
+                }
+            }
+
+            localStorage.setItem('reformated', 'true');
+
+        }
+
         
     }
 

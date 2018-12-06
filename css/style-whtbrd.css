@@ -200,6 +200,7 @@ body {
     border-left: 5px solid #0e92a2;
     max-width: 360px;
     display: inline-block;
+    white-space: pre-wrap;
     overflow: auto;
     overflow-x: hidden;
 }
