@@ -487,7 +487,6 @@ $(function() {
         }
 
         // Input cleanup
-        window.cleanInput = cleanInput;
         function cleanInput(input) {
             return escapeHtml(input)
                 .trim().replace(/\n/g, '<br>\n');
