@@ -122,7 +122,6 @@ body {
     cursor: grab;
     font-family: 'Ubuntu Mono', monospace;
     color: #121212;
-    /*min-width: 150px;*/
     max-width: 360px;
     overflow-wrap: break-word;
 }
@@ -203,6 +202,12 @@ body {
     white-space: pre-wrap;
     overflow: auto;
     overflow-x: hidden;
+}
+
+.noodle-heading:focus, .noodle-heading:active,
+.noodle-description:focus, .noodle-description:active,
+.code:focus, .code:active {
+    outline: none;
 }
 
 .inner-bg {

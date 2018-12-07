@@ -70,12 +70,15 @@ $(function() {
         whiteboard.on('click', '.noodle', function(event) {
 
             event.stopPropagation();
-            toggleClearMenu(true);
             let currentTarget = $( event.target );
 
             if (!addNoodleForm.hasClass('hidden')) {  // Hide Add New Form if visible
 
                 hideAddNew();
+
+            } else if ( JSON.parse($('#trashcan').attr('data-menu')) ) {
+
+                toggleClearMenu(true);
 
             } else if (event.ctrlKey) {    // ctrl pressed
 
@@ -141,6 +144,7 @@ $(function() {
             if($('.noodle').hasClass('editable')) {
                 saveEditedNoodles();
             } else {
+                toggleClearMenu(true);
                 toggleNew.toggleClass('active');
                 addNoodleForm.toggleClass('hidden');
                 $( '#add-heading' ).focus();
@@ -161,9 +165,10 @@ $(function() {
 
                 let currentCounter = localStorage.getItem('counter') ? Number(localStorage.getItem('counter')) + 1 : 1;
                 addNoodleForm.addClass('hidden');
-                let cleanCode = cleanInput(theCode.val());
                 let cleanHeading = cleanInput(theHeading.val());
                 let cleanDescription = cleanInput(theDescription.val());
+                let cleanCode = cleanInput(theCode.val());
+                cleanCode = cleanCode.replace(/<br>/g, '');
 
                 let noodleObject = new Noodle(currentCounter, cleanHeading, cleanDescription, cleanCode, false);
 
@@ -213,11 +218,13 @@ $(function() {
             e.stopPropagation();
             if($('.noodle').hasClass('editable')) {
                 saveEditedNoodles();
+            } else if(!$('#add-noodle-form').hasClass('hidden')) {
+                hideAddNew();
             } else {
                 let isClicked = JSON.parse($(this).attr('data-menu'));
                 toggleClearMenu(isClicked);
             }
-                
+
         });
 
         // Clear Noodles
@@ -235,6 +242,7 @@ $(function() {
             if($('.noodle').hasClass('editable')) {
                 saveEditedNoodles();
             } else {
+                toggleClearMenu(true);
                 e.preventDefault();
                 loadDemo();
                 // Set reformated to true (so that reformatNoodles() doesn't happen on every reload after ClearAll)
@@ -280,15 +288,11 @@ $(function() {
             let noodleSelector = $(`
                 <div class="noodle ${ isBigFontClass }" data-opened="${ noodleObject.isOpened }">
                     <div class="inner-bg">
-                        <p tabindex="0" contenteditable="false" class="noodle-heading">
-                            ${ noodleObject.heading }
-                        </p>
+                        <p tabindex="0" contenteditable="false" class="noodle-heading">${ noodleObject.heading }</p>
                     </div>
                     <div class="details ${ isHiddenClass }">
                         <div class="inner-bg">
-                            <p tabindex="0" contenteditable="false" class="noodle-description">
-                                ${ noodleObject.description }
-                            </p>
+                            <p tabindex="0" contenteditable="false" class="noodle-description">${ noodleObject.description }</p>
                         </div><br />
                         <div class="inner-bg">
                             <p tabindex="0" contenteditable="false" class="code">${noodleObject.codeEx}</p>
@@ -406,13 +410,15 @@ $(function() {
 
                     noodleObject.heading = currentNoodle.find('.noodle-heading').text().trim();
                     noodleObject.description = currentNoodle.find('.noodle-description').text().trim();
-                    noodleObject.codeEx = currentNoodle.find('.code').text().trim(); // .replace(/\n/g, '<br>');
+                    noodleObject.codeEx = currentNoodle.find('.code').html().trim();
+                    noodleObject.codeEx = noodleObject.codeEx.replace(/<br>/g, '\n');  // remove <br> from html
+                    currentNoodle.find('.code').html(noodleObject.codeEx);  // put value with stripped <br>s back
+                    noodleObject.codeEx = currentNoodle.find('.code').text();
 
                     // Clean inputs
                     noodleObject.heading = escapeHtml(noodleObject.heading);
                     noodleObject.description = escapeHtml(noodleObject.description);
                     noodleObject.codeEx = escapeHtml(noodleObject.codeEx);
-                    // noodleObject.codeEx = noodleObject.codeEx.replace(/<br>/g, '\n');
 
                     saveNoodle(noodleObject);
                     reloadNoodle(noodleObject, currentNoodle);
@@ -481,6 +487,7 @@ $(function() {
         }
 
         // Input cleanup
+        window.cleanInput = cleanInput;
         function cleanInput(input) {
             return escapeHtml(input)
                 .trim().replace(/\n/g, '<br>\n');
@@ -582,7 +589,7 @@ $(function() {
                     noodleID: '',
                     heading: 'console.log()',
                     description: 'Prints given attributes to the console.',
-                    codeEx: 'console.log(&#039;example text&#039;); // example text<br>\nconsole.log(58); // 58',
+                    codeEx: 'console.log(&#039;example text&#039;); // example text\nconsole.log(58); // 58',
                     isOpened: true,
                     posTop: 3.2162,
                     posLeft: 20.9163
@@ -609,7 +616,7 @@ $(function() {
                     noodleID: '',
                     heading: 'eval()',
                     description: 'Evaluates JavaScript code represented as a string.',
-                    codeEx: "console.log(eval('2 + 2')); // 4<br>\nconsole.log(eval(new String('2 + 2'))); // 2 + 2",
+                    codeEx: "console.log(eval('2 + 2')); // 4\nconsole.log(eval(new String('2 + 2'))); // 2 + 2",
                     isOpened: false,
                     posTop: 13.6664,
                     posLeft: 9.6413
@@ -618,7 +625,7 @@ $(function() {
                     noodleID: '',
                     heading: 'Number.isNaN()',
                     description: 'Determines whether the passed value is NaN and its type is Number.',
-                    codeEx: "Number.isNaN('text'); // false<br>\nNumber.isNaN(8); // true",
+                    codeEx: "Number.isNaN('text'); // false\nNumber.isNaN(8); // true",
                     isOpened: true,
                     posTop: 29.0007,
                     posLeft: 67.5671
@@ -654,12 +661,9 @@ $(function() {
                     if(Number(key)) {
                         let noodleObject = getNoodleObject(key);
                         // Clean inputs
-                        // noodleObject.heading = cleanInput(noodleObject.heading);
-                        // noodleObject.description = cleanInput(noodleObject.description);
                         noodleObject.codeEx = noodleObject.codeEx.replace(/\&nbsp\;/g, " ");
                         noodleObject.codeEx = noodleObject.codeEx.replace(/<br>/g, "");
                         noodleObject.codeEx = noodleObject.codeEx.trim();
-                        // noodleObject.codeEx = cleanInput(noodleObject.codeEx);
                         saveNoodle(noodleObject);
                         renderNoodle(noodleObject);
                     }
