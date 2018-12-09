@@ -15,6 +15,12 @@ $(function() {
 
     } else {
 
+    // How to Edit alert
+        if (!localStorage.getItem('edit-alert')) {
+            alert('CTRL + click on noodle to edit!');
+            localStorage.setItem('edit-alert', 'true');
+        }
+
     // Arrows fadeout
         if(!localStorage.length || localStorage.length === 1) {
             $('.arrow').removeClass('hidden');
@@ -283,6 +289,8 @@ $(function() {
 
         // Generate Noodle
         function generateNoodle(noodleObject) {
+            let visibleDescription = noodleObject.description ? '' : 'hidden';
+            let visibleCode = noodleObject.codeEx ? '' : 'hidden';
             let isHiddenClass = JSON.parse(noodleObject.isOpened) ? '' : 'hidden';
             let isBigFontClass = JSON.parse(noodleObject.isOpened) ? 'big-font' : '';
             let noodleSelector = $(`
@@ -291,10 +299,10 @@ $(function() {
                         <p tabindex="0" contenteditable="false" class="noodle-heading">${ noodleObject.heading }</p>
                     </div>
                     <div class="details ${ isHiddenClass }">
-                        <div class="inner-bg">
+                        <div class="inner-bg ${ visibleDescription }">
                             <p tabindex="0" contenteditable="false" class="noodle-description">${ noodleObject.description }</p>
-                        </div><br />
-                        <div class="inner-bg">
+                        </div><br class="${ visibleCode || visibleDescription ? 'hidden' : '' }" />
+                        <div class="inner-bg ${ visibleCode }">
                             <p tabindex="0" contenteditable="false" class="code">${noodleObject.codeEx}</p>
                         </div>
                     </div>
